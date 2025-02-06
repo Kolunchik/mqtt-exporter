@@ -1,0 +1,12 @@
+[Unit]
+Description=mqtt-exporter
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+ExecStart=/opt/mqtt-exporter -mqtt-broker tcp://192.168.1.10:1883 -tiny
+
+[Install]
+WantedBy=multi-user.target
