@@ -10,15 +10,16 @@
 # Description:       mqtt-exporter
 ### END INIT INFO
 
-SCRIPT="mqtt-exporter"
+EXE="./mqtt-exporter -http-addr 0.0.0.0:8080 -tiny"
 CHDIR="/opt"
-PIDFILE="/var/run/${SCRIPT}.pid"
+PIDFILE="/var/run/mqtt-exporter.pid"
+SCRIPT="while true;do ${EXE}; sleep 30; done"
 
 op=$1
 
 do_start()
 {
-    start-stop-daemon --start --quiet --oknodo --make-pidfile --background --pidfile "${PIDFILE}" --chdir "${CHDIR}" --exec "${SCRIPT}" -- -http-addr 0.0.0.0:8080 -tiny
+    start-stop-daemon --start --quiet --oknodo --make-pidfile --background --pidfile "${PIDFILE}" --chdir "${CHDIR}" --exec /bin/bash -- -c "${SCRIPT}"
     return $?
 }
 

@@ -1,6 +1,6 @@
 [Unit]
 Description=mqtt-exporter
-After=network.target
+After=network.target mosquitto.service
 
 [Service]
 Type=simple
