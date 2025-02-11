@@ -20,14 +20,29 @@ zabbix_export:
           history: 1d
           value_type: TEXT
           preprocessing:
+            - type: CHECK_NOT_SUPPORTED
+              parameters:
+                - '-1'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
             - type: JSONPATH
               parameters:
                 - $.body
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
           url: '{$M_URL}/health'
           output_format: JSON
           tags:
             - tag: mqtt
               value: mqtt-exporter
+          triggers:
+            - uuid: 8ff2a2302eab48d6b20aef4f640d016e
+              expression: 'last(/Template MQTT/exporter[metrics])=0'
+              name: '{$N_MQTT}: Не могу получить метрики'
+              priority: WARNING
+              tags:
+                - tag: error
+                  value: mqtt-exporter
         - uuid: cb3178df839d4b3885e5e7a28f4a007b
           name: '{$N_MQTT}: mqtt-exporter подключен к MQTT-брокеру'
           type: DEPENDENT
@@ -38,8 +53,6 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - '$.metrics.[?(@.topic==''mqtt_connected'')].value.first()'
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '0'
           master_item:
             key: 'exporter[metrics]'
           tags:
