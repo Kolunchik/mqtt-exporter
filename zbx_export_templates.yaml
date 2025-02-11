@@ -29,7 +29,7 @@ zabbix_export:
             - tag: mqtt
               value: mqtt-exporter
         - uuid: cb3178df839d4b3885e5e7a28f4a007b
-          name: 'mqtt-exporter подключен к MQTT-брокеру'
+          name: '{$N_MQTT}: mqtt-exporter подключен к MQTT-брокеру'
           type: DEPENDENT
           key: 'exporter[mqtt_connected]'
           history: 1d
@@ -48,7 +48,7 @@ zabbix_export:
           triggers:
             - uuid: 77765db33a80437da35fde90fe76c3f5
               expression: 'last(/Template MQTT/exporter[mqtt_connected])<>1'
-              name: 'mqtt-exporter не подключен к брокеру'
+              name: '{$N_MQTT}: mqtt-exporter не подключен к брокеру'
               priority: AVERAGE
               tags:
                 - tag: error
@@ -71,10 +71,42 @@ zabbix_export:
           triggers:
             - uuid: d090a77b8e784918a375d869b16c0b23
               expression: 'last(/Template MQTT/exporter[mqtt_connections_total],#1)-last(/Template MQTT/exporter[mqtt_connections_total],#5)>3'
-              name: 'mqtt-exporter необычно часто переподключается к брокеру'
+              name: '{$N_MQTT}: mqtt-exporter необычно часто переподключается к брокеру'
               tags:
                 - tag: error
                   value: mqtt-exporter
+        - uuid: f9075bce509c4677bbce69321c0e9b4c
+          name: '{$N_MQTT}: Время работы mqtt-exporter'
+          type: DEPENDENT
+          key: 'exporter[uptime_seconds]'
+          history: '{$INPUT_HISTORY}'
+          trends: '{$INPUT_TREND}'
+          units: uptime
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.metrics.[?(@.topic==''uptime_seconds'')].value.first()'
+          master_item:
+            key: 'exporter[metrics]'
+          tags:
+            - tag: mqtt
+              value: mqtt-exporter
+            - tag: type
+              value: uptime
+          triggers:
+            - uuid: eb4f57af09fa4f6db3768d0bcecd33da
+              expression: 'last(/Template MQTT/exporter[uptime_seconds])<{$CHECK_NODATA}'
+              name: '{$N_MQTT}: mqtt-exporter был перезапущен'
+              tags:
+                - tag: error
+                  value: mqtt-exporter
+            - uuid: 27a4950a52404f8e82798379107ab432
+              expression: 'nodata(/Template MQTT/exporter[uptime_seconds],{$CHECK_NODATA})=1'
+              name: '{$N_MQTT}: Давно не поступали данные о времени работы mqtt-exporter'
+              priority: WARNING
+              tags:
+                - tag: error
+                  value: nodata
         - uuid: 03779a72f67742ecb41771e15c52e842
           name: '{$N_MQTT}: Метрики mqtt'
           type: HTTP_AGENT
@@ -92,39 +124,6 @@ zabbix_export:
               value: system
             - tag: type
               value: master
-        - uuid: f9075bce509c4677bbce69321c0e9b4c
-          name: '{$N_MQTT}: Время после перезагрузки'
-          type: DEPENDENT
-          key: 'mqtt[system/uptime]'
-          history: '{$INPUT_HISTORY}'
-          value_type: FLOAT
-          trends: '{$INPUT_TREND}'
-          units: uptime
-          preprocessing:
-            - type: JSONPATH
-              parameters:
-                - '$.["/devices/system/controls/uptime"].value'
-          master_item:
-            key: 'mqtt[metrics]'
-          tags:
-            - tag: mqtt
-              value: system
-            - tag: type
-              value: uptime
-          triggers:
-            - uuid: 27a4950a52404f8e82798379107ab432
-              expression: 'nodata(/Template MQTT/mqtt[system/uptime],{$CHECK_NODATA})=1'
-              name: '{$N_MQTT}: Давно не поступали данные uptime'
-              priority: WARNING
-              tags:
-                - tag: error
-                  value: nodata
-            - uuid: eb4f57af09fa4f6db3768d0bcecd33da
-              expression: 'last(/Template MQTT/mqtt[system/uptime])<{$CHECK_NODATA}'
-              name: '{$N_MQTT}: Контроллер был перезагружен'
-              tags:
-                - tag: error
-                  value: system
         - uuid: 02fbf6e8a7d5436e945f0d3de4dbddc5
           name: '{$N_MQTT}: Напряжение питания контроллера'
           type: DEPENDENT
@@ -2388,6 +2387,7 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/K2"].value'
+                  error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2407,6 +2407,7 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/K3"].value'
+                  error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
               tags:
