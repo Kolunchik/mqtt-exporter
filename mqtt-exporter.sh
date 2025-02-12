@@ -26,6 +26,7 @@ do_start()
 do_stop()
 {
     start-stop-daemon --stop --quiet --oknodo --retry TERM/5/KILL/5 --pidfile "${PIDFILE}"
+    pkill -u root mqtt-exporter
     return $?
 }
 
