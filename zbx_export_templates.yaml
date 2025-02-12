@@ -1,17 +1,18 @@
 zabbix_export:
   version: '7.2'
   template_groups:
-    - uuid: 7df96b18c230490a9a0a9e2307226338
-      name: Templates
-    - uuid: 5ab046501f7c4533a46ff73141babc5c
-      name: Templates/MQTT
+    - uuid: 36bff6c29af64692839d077febfc7079
+      name: 'Templates/Network devices'
   templates:
     - uuid: 299c35b3518b454f809c8e6af68cc73f
-      template: 'Template MQTT'
-      name: 'Template MQTT'
+      template: 'Wirenboard by mqtt-exporter'
+      name: 'Wirenboard by mqtt-exporter'
+      description: 'https://github.com/Kolunchik/mqtt-exporter'
+      vendor:
+        name: 'https://github.com/Kolunchik/mqtt-exporter'
+        version: 1.0.0
       groups:
-        - name: Templates
-        - name: Templates/MQTT
+        - name: 'Templates/Network devices'
       items:
         - uuid: 72d62928c7c6448ca96c0ed81b400f87
           name: '{$N_MQTT}: Служебные метрики mqtt-exporter'
@@ -37,8 +38,8 @@ zabbix_export:
               value: mqtt-exporter
           triggers:
             - uuid: 8ff2a2302eab48d6b20aef4f640d016e
-              expression: 'last(/Template MQTT/exporter[metrics])=0'
-              name: '{$N_MQTT}: Не могу получить метрики'
+              expression: 'last(/Wirenboard by mqtt-exporter/exporter[metrics])=0'
+              name: '{$N_MQTT}: Не могу получить служебные метрики mqtt-exporter'
               priority: WARNING
               tags:
                 - tag: error
@@ -60,14 +61,14 @@ zabbix_export:
               value: mqtt-exporter
           triggers:
             - uuid: 77765db33a80437da35fde90fe76c3f5
-              expression: 'last(/Template MQTT/exporter[mqtt_connected])<>1'
+              expression: 'last(/Wirenboard by mqtt-exporter/exporter[mqtt_connected])<>1'
               name: '{$N_MQTT}: mqtt-exporter не подключен к брокеру'
               priority: AVERAGE
               tags:
                 - tag: error
                   value: mqtt-exporter
         - uuid: dcfa7fa375014a04b972d6d951d3ec53
-          name: 'Количество выполненных подключений к MQTT-брокеру'
+          name: '{$N_MQTT}: Количество выполненных подключений к MQTT-брокеру'
           type: DEPENDENT
           key: 'exporter[mqtt_connections_total]'
           history: 1d
@@ -83,7 +84,7 @@ zabbix_export:
               value: mqtt-exporter
           triggers:
             - uuid: d090a77b8e784918a375d869b16c0b23
-              expression: 'last(/Template MQTT/exporter[mqtt_connections_total],#1)-last(/Template MQTT/exporter[mqtt_connections_total],#5)>3'
+              expression: 'last(/Wirenboard by mqtt-exporter/exporter[mqtt_connections_total],#1)-last(/Wirenboard by mqtt-exporter/exporter[mqtt_connections_total],#5)>3'
               name: '{$N_MQTT}: mqtt-exporter необычно часто переподключается к брокеру'
               tags:
                 - tag: error
@@ -108,13 +109,13 @@ zabbix_export:
               value: uptime
           triggers:
             - uuid: eb4f57af09fa4f6db3768d0bcecd33da
-              expression: 'last(/Template MQTT/exporter[uptime_seconds])<{$CHECK_NODATA}'
+              expression: 'last(/Wirenboard by mqtt-exporter/exporter[uptime_seconds])<{$CHECK_NODATA}'
               name: '{$N_MQTT}: mqtt-exporter был перезапущен'
               tags:
                 - tag: error
                   value: mqtt-exporter
             - uuid: 27a4950a52404f8e82798379107ab432
-              expression: 'nodata(/Template MQTT/exporter[uptime_seconds],{$CHECK_NODATA})=1'
+              expression: 'nodata(/Wirenboard by mqtt-exporter/exporter[uptime_seconds],{$CHECK_NODATA})=1'
               name: '{$N_MQTT}: Давно не поступали данные о времени работы mqtt-exporter'
               priority: WARNING
               tags:
@@ -158,32 +159,32 @@ zabbix_export:
               value: Vin
           triggers:
             - uuid: a604481444b343388a63e0a4550beb69
-              expression: 'max(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})-min(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MAX_DELTA}'
+              expression: 'max(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})-min(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MAX_DELTA}'
               name: '{$N_MQTT}: Болтается напряжение питания контроллера'
               description: 'возможно, блок питания собирается попрощаться с нами'
               dependencies:
                 - name: '{$N_MQTT}: Напряжение питания контроллера ниже {$VOLTAGE_MIN} V'
-                  expression: 'avg(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})<{$VOLTAGE_MIN}'
-                  recovery_expression: 'avg(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MIN_OK}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})<{$VOLTAGE_MIN}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MIN_OK}'
               tags:
                 - tag: error
                   value: system
             - uuid: 135703afe0f44999ab344e0cd47feca1
-              expression: 'nodata(/Template MQTT/mqtt[system/Vin],{$CHECK_NODATA})=1'
+              expression: 'nodata(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_NODATA})=1'
               name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
               priority: INFO
               tags:
                 - tag: error
                   value: nodata
             - uuid: cf826c3e9228472081f387c3882984fa
-              expression: 'avg(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})<{$VOLTAGE_MIN}'
+              expression: 'avg(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})<{$VOLTAGE_MIN}'
               recovery_mode: RECOVERY_EXPRESSION
-              recovery_expression: 'avg(/Template MQTT/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MIN_OK}'
+              recovery_expression: 'avg(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_INTERVAL})>{$VOLTAGE_MIN_OK}'
               name: '{$N_MQTT}: Напряжение питания контроллера ниже {$VOLTAGE_MIN} V'
               priority: INFO
               dependencies:
                 - name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
-                  expression: 'nodata(/Template MQTT/mqtt[system/Vin],{$CHECK_NODATA})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/mqtt[system/Vin],{$CHECK_NODATA})=1'
               tags:
                 - tag: error
                   value: system
@@ -220,9 +221,9 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 4859b086ebb34719a2165db6192b1eac
-                  expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Высокая влажность'
                   priority: INFO
                   tags:
@@ -277,7 +278,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: fd06fb71018b4e81a2c96147c6d56621
-                  expression: 'last(/Template MQTT/msu24hit[{#DEVICE}/Temp/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: 48e93fa6bcbb4112b1d0044b512faa2c
@@ -306,25 +307,25 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 367f84a199044a8782611004980d757d
-                  expression: 'nodata(/Template MQTT/msu24hit[{#DEVICE}/Temp],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
                     - tag: error
                       value: nodata
                 - uuid: 6ec99087fa6d49e885a1a869869aaa63
-                  expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Жарко'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 459c98e6715e4e76b00a3cdfa32e1994
-                  expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
                   name: '{#NAME}: Холодно'
                   priority: AVERAGE
                   tags:
@@ -1117,7 +1118,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: bd83bcaa74d543af9ff5d7b4badbe064
-                  expression: 'last(/Template MQTT/wb-map3e[{#DEVICE}/Urms L1/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-map3e[{#DEVICE}/Urms L1/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: d95c89efb5bf4a3ba488822557dc999e
@@ -1142,7 +1143,7 @@ zabbix_export:
                   value: electricity
               trigger_prototypes:
                 - uuid: 933100e4ddef4a7ba7d9f64d5af7ea9a
-                  expression: 'nodata(/Template MQTT/wb-map3e[{#DEVICE}/Urms L1],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-map3e[{#DEVICE}/Urms L1],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -1299,7 +1300,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: d1678b4e3b764140b454748a130fa3e3
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Counter1/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter1/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: e541a3b276f84d7bad48c434a4563365
@@ -1322,12 +1323,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 1ed36f7892334e348186281310c40455
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 1])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 1])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I1}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 1])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 1])=1'
             - uuid: e36c62f20699491a8e1c49c42074332c
               name: '{#NAME}: {$N_{#MACRO}:I2} (счетчик)'
               type: DEPENDENT
@@ -1348,12 +1349,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: d7927ef079354cbd9b53a6b73e7f677b
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 2])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 2])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I2}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 2])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 2])=1'
             - uuid: fe0a9e499f0a40ddba758813c0343f68
               name: '{#NAME}: {$N_{#MACRO}:I3} (счетчик)'
               type: DEPENDENT
@@ -1374,12 +1375,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: de449ddd1e9b4fc5a9a4f0e7a46ced20
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 3])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 3])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I3}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 3])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 3])=1'
             - uuid: 21ab923caa0e4ff5a0c42f9d5fa8d481
               name: '{#NAME}: {$N_{#MACRO}:I4} (счетчик)'
               type: DEPENDENT
@@ -1400,12 +1401,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: b9fce311af2249398ad23682e9b2087f
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 4])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 4])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I4}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I4}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 4])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 4])=1'
             - uuid: 540a4be7e98c4943bd0feff6e60b3625
               name: '{#NAME}: {$N_{#MACRO}:I5} (счетчик)'
               type: DEPENDENT
@@ -1426,12 +1427,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 1c9ea20e55434e688401ce10a4d4f637
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 5])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 5])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I5}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I5}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 5])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 5])=1'
             - uuid: 3a740d27377f4a189842d88ae683a5d8
               name: '{#NAME}: {$N_{#MACRO}:I6} (счетчик)'
               type: DEPENDENT
@@ -1452,12 +1453,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 16771ac2ab7d4c77a104e94645670790
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 6])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 6])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I6}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I6}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 6])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 6])=1'
             - uuid: c07faebc142545c9a8971966427a5fee
               name: '{#NAME}: {$N_{#MACRO}:I7} (счетчик)'
               type: DEPENDENT
@@ -1478,12 +1479,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 60fb72446f104b0aa30eebb125f12ad3
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 7])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 7])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I7}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I7}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 7])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 7])=1'
             - uuid: 38ffacb39bb3438ab2895ca507173d33
               name: '{#NAME}: {$N_{#MACRO}:I8} (счетчик)'
               type: DEPENDENT
@@ -1504,12 +1505,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 1b72d9864bd24c8da0501fc780cd9d31
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 8])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 8])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I8}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I8}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 8])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 8])=1'
             - uuid: 71b3ac02502e4056aa0ec8217156aa57
               name: '{#NAME}: {$N_{#MACRO}:I9} (счетчик)'
               type: DEPENDENT
@@ -1530,12 +1531,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: a0aa8351ff0c420c88abc22f81546674
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 9])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 9])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I9}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I9}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 9])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 9])=1'
             - uuid: 4a06b24695d7494190cae6d5e1266f60
               name: '{#NAME}: {$N_{#MACRO}:I10} (счетчик)'
               type: DEPENDENT
@@ -1556,12 +1557,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 2e23232731ba4f31aa133eba716f413b
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 10])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 10])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I10}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I10}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 10])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 10])=1'
             - uuid: cbb7511c2c8a42cba272c6f3d1a1b550
               name: '{#NAME}: {$N_{#MACRO}:I11} (счетчик)'
               type: DEPENDENT
@@ -1582,12 +1583,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 3ebb49e7aa67437ba539171650cda4ea
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 11])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 11])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I11}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I11}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 11])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 11])=1'
             - uuid: 763e0b2900604fbb8cd42f180142b5dc
               name: '{#NAME}: {$N_{#MACRO}:I12} (счетчик)'
               type: DEPENDENT
@@ -1608,12 +1609,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 59dea142f7dd455da01ae9673a9d1274
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 12])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 12])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I12}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I12}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 12])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 12])=1'
             - uuid: 868dace382624a80989bb1179707761d
               name: '{#NAME}: {$N_{#MACRO}:I13} (счетчик)'
               type: DEPENDENT
@@ -1634,12 +1635,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: a20fda1c3f354dc3a53ceaba68f0a0ae
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 13])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 13])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I13}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I13}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 13])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 13])=1'
             - uuid: edf5d96b43514ef6af85255938694783
               name: '{#NAME}: {$N_{#MACRO}:I14} (счетчик)'
               type: DEPENDENT
@@ -1660,12 +1661,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 390e4a1f8dce4e089fb1075a71c8e9df
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 14])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 14])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I14}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I14}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 14])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 14])=1'
             - uuid: 7efdb016fcd64bfcbdea82a85eaa6fe1
               name: '{#NAME}: {$N_{#MACRO}:I15} (счетчик)'
               type: DEPENDENT
@@ -1686,12 +1687,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: a3175d337d604c739db31f27549e9414
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 15])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 15])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I15}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I15}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 15])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 15])=1'
             - uuid: 6b80d5553eab406888920b6c10a10d53
               name: '{#NAME}: {$N_{#MACRO}:I16} (счетчик)'
               type: DEPENDENT
@@ -1712,12 +1713,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: de5e086bdf4d4407b8c518bf7bedca66
-                  expression: 'change(/Template MQTT/wb-mcm16[{#DEVICE}/Counter 16])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Counter 16])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I16}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I16}'
-                      expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 16])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 16])=1'
             - uuid: 47aed94e9c62496e9a5813e5e8de5f3a
               name: '{#NAME}: {$N_{#MACRO}:I1}'
               type: DEPENDENT
@@ -1741,7 +1742,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 7321c197511e4eac9ee98472fc09b3a6
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: AVERAGE
             - uuid: ca15326c938146a692863965a2f322c2
@@ -1767,7 +1768,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: a4f3f5ab0f2c4578a9083eb691b90cbd
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: AVERAGE
             - uuid: 0c48715db9c34e479339605b2a99c983
@@ -1793,7 +1794,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 1144fdbcf1104f11aa5d35f6e7d5045a
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 3])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 3])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: AVERAGE
             - uuid: 920e363daeef4156802cb58744dab9e3
@@ -1819,7 +1820,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 2212d902c25844c0aaff6666525c2259
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 4])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 4])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I4}'
                   priority: AVERAGE
             - uuid: e283aa65209f46eaa49d7b41cb5b6356
@@ -1845,7 +1846,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 29765e8371204a019083700f5b7074b4
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 5])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 5])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I5}'
                   priority: AVERAGE
             - uuid: 18424928c0ab45a0b7e2ac961d509b36
@@ -1871,7 +1872,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d5704852b3cf4746ac372ced25c281ad
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 6])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 6])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I6}'
                   priority: AVERAGE
             - uuid: 6fcc428e295742a9b8718bbf139eb7e1
@@ -1897,7 +1898,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 506fa083533644588abe9039f8f73b5b
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 7])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 7])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I7}'
                   priority: AVERAGE
             - uuid: f394d78aeac64bb8a6084378cf1f762f
@@ -1923,7 +1924,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d0db4c9bae1c465a9632ae3010a414b0
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 8])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 8])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I8}'
                   priority: AVERAGE
             - uuid: e38a29ff5a1c44648990beca7ab815c1
@@ -1949,7 +1950,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 4f782e6d25424851a14a9d3c1f36fb08
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 9])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 9])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I9}'
                   priority: AVERAGE
             - uuid: 8cee64a3e67b41a5a3d9cfc64aef4f17
@@ -1975,7 +1976,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 85e34a9abf4240feb06fdac2f248c8e4
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 10])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 10])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I10}'
                   priority: AVERAGE
             - uuid: 288aba9cb0374b1595de60b23a8081d7
@@ -2001,7 +2002,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 20be0e2bc3db4065b122c7ee2380c4f2
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 11])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 11])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I11}'
                   priority: AVERAGE
             - uuid: 41e3c19903aa474988522584822080cf
@@ -2027,7 +2028,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 939934617b8a46139d187e1443c43cab
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 12])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 12])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I12}'
                   priority: AVERAGE
             - uuid: c07fc74f22fb499ba75d6a27623e78f1
@@ -2053,7 +2054,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d247f9f4bc2b49f8a028d79db8f744fa
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 13])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 13])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I13}'
                   priority: AVERAGE
             - uuid: 5106a5485d894946bd431d422c9c2650
@@ -2079,11 +2080,11 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: f83d44da375d49138050186afb728d0c
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 14])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 14])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I14}'
                   priority: AVERAGE
                 - uuid: 042ff4f3a71b442da598f2fa825b8b6d
-                  expression: '(nodata(/Template MQTT/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/Template MQTT/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=0)'
+                  expression: '(nodata(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=0)'
                   name: '{#NAME}: {$N_{#MACRO}:I14} давно не включался'
                   priority: WARNING
                   tags:
@@ -2112,7 +2113,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: c34f044a344a469ca5dc888becaa9fa6
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 15])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 15])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I15}'
                   priority: AVERAGE
             - uuid: 5cc4a3d666a045a8929fa6759faf4f4f
@@ -2138,7 +2139,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 7c0bc82521674aac92da153d76dc2219
-                  expression: 'last(/Template MQTT/wb-mcm16[{#DEVICE}/Input 16])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mcm16[{#DEVICE}/Input 16])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I16}'
                   priority: AVERAGE
           preprocessing:
@@ -2200,12 +2201,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 9540460397fe4f97a30976c3170bc666
-                  expression: 'change(/Template MQTT/wb-mr3[{#DEVICE}/Input 1 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 1 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I1}'
-                      expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 1])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 1])=1'
             - uuid: 22fb0e5453a44db0b86e3a95d543560f
               name: '{#NAME}: Ошибка связи с датчиком'
               type: DEPENDENT
@@ -2238,7 +2239,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: 26ae3d4b841040b79a5feb5fe76d8399
-                  expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 1/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 1/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: 7dcb389f0f974b28b661bffad0f3a1cf
@@ -2263,7 +2264,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 3b5a4c4f2efb402389248dbbfb2b3998
-                  expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: AVERAGE
             - uuid: 13b31c66fd564b788d7df5ddf733a320
@@ -2286,12 +2287,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 148fd24683f44cb285fff0695f4295d0
-                  expression: 'change(/Template MQTT/wb-mr3[{#DEVICE}/Input 2 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 2 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I2}'
-                      expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 2])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 2])=1'
             - uuid: 64510462d94640639083bf232f08cdab
               name: '{#NAME}: {$N_{#MACRO}:I2}'
               type: DEPENDENT
@@ -2314,7 +2315,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 6f59dfac496840a3b4484c4090b1b9d8
-                  expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: AVERAGE
             - uuid: 4319e41790fc46d3858381c4ce68ef88
@@ -2337,12 +2338,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 6d9864e323bc46809895a742f4cab2a1
-                  expression: 'change(/Template MQTT/wb-mr3[{#DEVICE}/Input 3 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 3 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I3}'
-                      expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 3])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 3])=1'
             - uuid: 66d6d1044d0848fb8315dabd5384392b
               name: '{#NAME}: {$N_{#MACRO}:I3}'
               type: DEPENDENT
@@ -2365,7 +2366,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 982d644c505344e19e49c2024892823b
-                  expression: 'last(/Template MQTT/wb-mr3[{#DEVICE}/Input 3])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Input 3])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: AVERAGE
             - uuid: 7190a855e02445288cb769adaa4c2e55
@@ -2450,7 +2451,7 @@ zabbix_export:
                   value: Vin
               trigger_prototypes:
                 - uuid: 930b7027fd7445d6a769a442632c8add
-                  expression: 'nodata(/Template MQTT/wb-mr3[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-mr3[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -2507,7 +2508,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: 5f4b419ab19b498aa4adcda9f8dbefe5
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/controls/Input 1/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/controls/Input 1/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: 437fa36377364c91a7f3f0aaf3d799bd
@@ -2530,12 +2531,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 76e119ba543444ce8ca4a86e828816cb
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 1 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 1 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I1}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 1])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 1])=1'
             - uuid: 1dcced7273344f7492de26109a729553
               name: '{#NAME}: {$N_{#MACRO}:I1}'
               type: DEPENDENT
@@ -2558,7 +2559,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: e619bae41dcd451abd467c9f7de6cf48
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I1}'
                   priority: AVERAGE
             - uuid: ebd9466bea2443c7974e556c3e57e331
@@ -2581,12 +2582,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 1db7d88a6d014403ac7be37e722937c5
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 2 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 2 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I2}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 2])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 2])=1'
             - uuid: 17a00fd71808481c8e0ea54ea3f9b77f
               name: '{#NAME}: {$N_{#MACRO}:I2}'
               type: DEPENDENT
@@ -2609,7 +2610,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 4cb2986667f1450ba9e16caff6279608
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I2}'
                   priority: AVERAGE
             - uuid: d8f2ab9d97f449d3a8d52465da5e15e6
@@ -2632,12 +2633,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 612ad74d882448048884ad62ad3d20d4
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 3 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 3 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I3}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 3])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 3])=1'
             - uuid: d24f7195a53847be905463f1fd60454f
               name: '{#NAME}: {$N_{#MACRO}:I3}'
               type: DEPENDENT
@@ -2660,7 +2661,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 067ad2726a7a40d7bbc3e6ab8444ab8e
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 3])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 3])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I3}'
                   priority: AVERAGE
             - uuid: dc8d7ce9ce0744c8a26d078ce6dff742
@@ -2683,12 +2684,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 2da25096cfbd4777a13042f73a7d24b1
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 4 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 4 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I4}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I4}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 4])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 4])=1'
             - uuid: 46ce151d6546409386fb7d0ddf988f1b
               name: '{#NAME}: {$N_{#MACRO}:I4}'
               type: DEPENDENT
@@ -2711,7 +2712,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: e296aa3360d049c695ea8d7c4826d3f7
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 4])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 4])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I4}'
                   priority: AVERAGE
             - uuid: 8d7468c88d6546f0ba275cb12811595b
@@ -2734,12 +2735,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: ee339cd17b7f40da990e4d46da033486
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 5 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 5 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I5}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I5}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 5])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 5])=1'
             - uuid: 18f972c511a74f3199814d647f83115a
               name: '{#NAME}: {$N_{#MACRO}:I5}'
               type: DEPENDENT
@@ -2762,7 +2763,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: c1e18c699ebb4c3686a564d2aac13e72
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 5])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 5])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I5}'
                   priority: AVERAGE
             - uuid: 32c0d3c1d6ca47e791003c9f0ce0990e
@@ -2785,12 +2786,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 795a1453946a4d9fbf61b0326ae00b94
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 6 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 6 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I6}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I6}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 6])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 6])=1'
             - uuid: 18a1ca96374c4ff9beb430a2e79a71a2
               name: '{#NAME}: {$N_{#MACRO}:I6}'
               type: DEPENDENT
@@ -2813,7 +2814,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 8e5237c701804b5680bf3d1ca00fbca5
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 6])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 6])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I6}'
                   priority: AVERAGE
             - uuid: 88f959aa92d34dc2ac2336cb4976c6f4
@@ -2836,12 +2837,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: ccf37303825148eaad74b83cb0a838b5
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 7 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 7 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I7}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I7}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 7])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 7])=1'
             - uuid: 7030ff90647a4a509de7c063f5af1161
               name: '{#NAME}: {$N_{#MACRO}:I7}'
               type: DEPENDENT
@@ -2864,7 +2865,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 9a2fceb09dea432f9be1d916f6d47f9b
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 7])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 7])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I7}'
                   priority: AVERAGE
             - uuid: b728d3dc56864e1fbff66152a7adf2f1
@@ -2887,12 +2888,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 963b86c6062a4e28ac5f38befb747406
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 8 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 8 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I8}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I8}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 8])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 8])=1'
             - uuid: 58fd087cc9aa4821911174c50a5e04fb
               name: '{#NAME}: {$N_{#MACRO}:I8}'
               type: DEPENDENT
@@ -2915,7 +2916,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 363aeef1f84843738137cee38a89a2fa
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 8])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 8])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I8}'
                   priority: AVERAGE
             - uuid: 10187aa9ecfb4e518bab62fcf3054f81
@@ -2938,12 +2939,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: cde5e1db7f1b4f508f4da22a92ad1731
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 9 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 9 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I9}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I9}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 9])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 9])=1'
             - uuid: b375150319c149c7b7dbad57cad9a295
               name: '{#NAME}: {$N_{#MACRO}:I9}'
               type: DEPENDENT
@@ -2966,7 +2967,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 4451e98052a94e1a9983b7c3418f0dc1
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 9])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 9])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I9}'
                   priority: AVERAGE
             - uuid: 6a4b7443157c4886a35b44ca1ccc5609
@@ -2989,12 +2990,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: bcda1d97c8e644cfa6836bb7221e1edf
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 10 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 10 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I10}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I10}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 10])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 10])=1'
             - uuid: 59b25ac4cc2e497fb70ea848cc38fc6e
               name: '{#NAME}: {$N_{#MACRO}:I10}'
               type: DEPENDENT
@@ -3017,7 +3018,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 1187e935064c4f7cb92b789c94e1f950
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 10])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 10])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I10}'
                   priority: AVERAGE
             - uuid: 4b819b7fa3314b7194fb038569ae93fe
@@ -3040,12 +3041,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 0d95c633bbc54a91b8e1b7bb49102479
-                  expression: 'change(/Template MQTT/wb-mr11[{#DEVICE}/Input 11 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 11 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:I11}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I11}'
-                      expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 11])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 11])=1'
             - uuid: d7db228850224bbe9c10038caf7b0f9a
               name: '{#NAME}: {$N_{#MACRO}:I11}'
               type: DEPENDENT
@@ -3068,7 +3069,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d754696c059b45df8b4d01e26ebc93dc
-                  expression: 'last(/Template MQTT/wb-mr11[{#DEVICE}/Input 11])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Input 11])=1'
                   name: '{#NAME}: {$N_{#MACRO}:I11}'
                   priority: AVERAGE
             - uuid: 44d8efb9d6734bdbb577a83c932d51ac
@@ -3313,7 +3314,7 @@ zabbix_export:
                   value: Vin
               trigger_prototypes:
                 - uuid: 60786e4d19854a42ade1f1fde4f43513
-                  expression: 'nodata(/Template MQTT/wb-mr11[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-mr11[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -3358,12 +3359,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: ae781dd7dc5446b9b61de3b47a5642c8
-                  expression: 'change(/Template MQTT/wb-mrgb[{#DEVICE}/Button 1 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 1 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:B1}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:B1}'
-                      expression: 'last(/Template MQTT/wb-mrgb[{#DEVICE}/Button 1])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 1])=1'
             - uuid: 3c00443a3e264ed8bcb969d747cab9be
               name: '{#NAME}: {$N_{#MACRO}:B1}'
               type: DEPENDENT
@@ -3386,7 +3387,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 5c5f678c6e2c4248a3492b9160e50457
-                  expression: 'last(/Template MQTT/wb-mrgb[{#DEVICE}/Button 1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:B1}'
                   priority: AVERAGE
             - uuid: 08e67a32d23e4983aa1e2065679e7cee
@@ -3409,12 +3410,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 4877138e23d8481da0c7cb9bb161a8ab
-                  expression: 'change(/Template MQTT/wb-mrgb[{#DEVICE}/Button 2 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 2 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:B2}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:B2}'
-                      expression: 'last(/Template MQTT/wb-mrgb[{#DEVICE}/Button 2])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 2])=1'
             - uuid: 15a016146d2f489eb74d0776fe76ac92
               name: '{#NAME}: {$N_{#MACRO}:B2}'
               type: DEPENDENT
@@ -3437,7 +3438,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d6bf2cea2ce44129a3db6db584b64e2c
-                  expression: 'last(/Template MQTT/wb-mrgb[{#DEVICE}/Button 2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/Button 2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:B2}'
                   priority: AVERAGE
             - uuid: b8489a65d4a844d4b6e4af74d06e8fe0
@@ -3472,7 +3473,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: 57197d8abb3641b9b918e26dab3353a2
-                  expression: 'last(/Template MQTT/wb-mrgb[{#DEVICE}/RGB/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/RGB/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
                   manual_close: 'YES'
@@ -3496,7 +3497,7 @@ zabbix_export:
                   value: light
               trigger_prototypes:
                 - uuid: 9aa71a2b655f4fa2b488e230e5acadc9
-                  expression: 'nodata(/Template MQTT/wb-mrgb[{#DEVICE}/RGB],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-mrgb[{#DEVICE}/RGB],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -3541,12 +3542,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: a4da568c958441af8650e76976362314
-                  expression: 'change(/Template MQTT/wb-mrm2[{#DEVICE}/Button 1 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 1 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:B1}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:B1}'
-                      expression: 'last(/Template MQTT/wb-mrm2[{#DEVICE}/Button 1])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 1])=1'
             - uuid: 997fb7f92c434b798f80d5e73d8efd95
               name: '{#NAME}: Ошибка связи с датчиком'
               type: DEPENDENT
@@ -3579,7 +3580,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: f19840ce5e8a4957afce0991f40fb2a5
-                  expression: 'last(/Template MQTT/wb-mrm2[{#DEVICE}/Button 1/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 1/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
                   manual_close: 'YES'
@@ -3605,11 +3606,11 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d73eff11717c43a0b85419c4f96187cb
-                  expression: 'last(/Template MQTT/wb-mrm2[{#DEVICE}/Button 1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:B1}'
                   priority: AVERAGE
                 - uuid: fc184c47deb445649ba3a1d397c0550d
-                  expression: 'nodata(/Template MQTT/wb-mrm2[{#DEVICE}/Button 1],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 1],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -3635,12 +3636,12 @@ zabbix_export:
                   value: counter
               trigger_prototypes:
                 - uuid: 2c372077baee4e9ca2e04d5126c1c3bc
-                  expression: 'change(/Template MQTT/wb-mrm2[{#DEVICE}/Button 2 counter])<>0'
+                  expression: 'change(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 2 counter])<>0'
                   name: '{#NAME}: {$N_{#MACRO}:B2}'
                   priority: WARNING
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:B2}'
-                      expression: 'last(/Template MQTT/wb-mrm2[{#DEVICE}/Button 2])=1'
+                      expression: 'last(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 2])=1'
             - uuid: 4b0f05598c784b48862eac35a1a1993d
               name: '{#NAME}: {$N_{#MACRO}:B2}'
               type: DEPENDENT
@@ -3663,7 +3664,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 1a4e2834a5ee45738d0a6d1300260d0b
-                  expression: 'last(/Template MQTT/wb-mrm2[{#DEVICE}/Button 2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-mrm2[{#DEVICE}/Button 2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:B2}'
                   priority: AVERAGE
             - uuid: 35fec4135e77477284af1d9d3e603780
@@ -3751,18 +3752,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 23149835d2e94cf6b87070e42169dd7a
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
                   name: '{#NAME}: Жарко {$N_{#MACRO}:W1}'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 974bc701e8354cd18eeb2ee2ac466adc
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
                   name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
                   priority: AVERAGE
                   tags:
@@ -3794,18 +3795,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 9270e790a4d34a46be391e2437ac3c95
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
                   name: '{#NAME}: Жарко {$N_{#MACRO}:W2}'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 188866e7801440b2a6086526abe5c017
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
                   name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
                   priority: AVERAGE
                   tags:
@@ -3837,9 +3838,9 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 976165a1aaeb42f296f4afec041b48df
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Высокая влажность'
                   priority: INFO
                   tags:
@@ -3886,7 +3887,7 @@ zabbix_export:
                   value: Vin
               trigger_prototypes:
                 - uuid: a0c9d6cda04b464a8e9e25d270759c0e
-                  expression: 'nodata(/Template MQTT/wb-ms-thls[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -3918,7 +3919,7 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 4af05d3e4bbd49aa941e0cfe36fa2505
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Sound Level],{$CHECK_INTERVAL_SHORT})>{$LOUD_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Sound Level],{$CHECK_INTERVAL_SHORT})>{$LOUD_MAX:"{#MACRO}"}'
                   name: '{#NAME}: Шумно'
                   priority: INFO
                   tags:
@@ -3956,7 +3957,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: 46d10458bdaa48ae9a20d3847d410a80
-                  expression: 'last(/Template MQTT/wb-ms-thls[{#DEVICE}/Temperature/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Temperature/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: a753ef872a1043e7bbf3304660c129c0
@@ -3985,18 +3986,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 4e7b2465dfc4423fa265690d84620e60
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Жарко'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 20151653ee1c4645b3962b9c9272e1e7
-                  expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-ms-thls[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
                   name: '{#NAME}: Холодно'
                   priority: AVERAGE
                   tags:
@@ -4042,7 +4043,7 @@ zabbix_export:
                   value: buzzer
               trigger_prototypes:
                 - uuid: 579ea05929674b8680c58d3eb26ac411
-                  expression: 'last(/Template MQTT/wb-msw2[{#DEVICE}/Buzzer])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Buzzer])=1'
                   name: '{#NAME}: Зуммер включен'
                   tags:
                     - tag: buzzer
@@ -4068,7 +4069,7 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: c0444e19b9e844ce9c973af2cdadcc3f
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/CO2],{$CHECK_INTERVAL_SHORT})>{$CO2_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/CO2],{$CHECK_INTERVAL_SHORT})>{$CO2_MAX:"{#MACRO}"}'
                   name: '{#NAME}: Высокое содержание углекислого газа'
                   priority: WARNING
                   tags:
@@ -4100,18 +4101,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 637fe672e24641b1957db079ddd988af
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
                   name: '{#NAME}: Жарко {$N_{#MACRO}:W1}'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: bb4ca76d401e4d9dabf9e3508937cd5c
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
                   name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
                   priority: AVERAGE
                   tags:
@@ -4143,18 +4144,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 089777934c744109847ae483434f578f
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
                   name: '{#NAME}: Жарко {$N_{#MACRO}:W2}'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 0b744f403bc74cefa421aa414539af07
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
                   name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
                   priority: AVERAGE
                   tags:
@@ -4186,9 +4187,9 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: dcb7845d749f43e7ad1a1209cffb38c8
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Humidity],{$CHECK_INTERVAL})>{$HUMID_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Humidity],{$CHECK_INTERVAL})<{$HUMID_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Высокая влажность'
                   priority: INFO
                   tags:
@@ -4235,7 +4236,7 @@ zabbix_export:
                   value: Vin
               trigger_prototypes:
                 - uuid: 187177a8a9024f21b194553c4e93ec8d
-                  expression: 'nodata(/Template MQTT/wb-msw2[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
@@ -4267,7 +4268,7 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: c620e007a4b04e4d80415a244c5a42fa
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Sound Level],{$CHECK_INTERVAL_SHORT})>{$LOUD_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Sound Level],{$CHECK_INTERVAL_SHORT})>{$LOUD_MAX:"{#MACRO}"}'
                   name: '{#NAME}: Шумно'
                   priority: INFO
                   tags:
@@ -4305,7 +4306,7 @@ zabbix_export:
                   value: error
               trigger_prototypes:
                 - uuid: e97bba64dc7d4ad480e1caa54252c0a8
-                  expression: 'last(/Template MQTT/wb-msw2[{#DEVICE}/Temperature/error])<>0'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Temperature/error])<>0'
                   name: '{#NAME}: Ошибка связи с датчиком'
                   priority: WARNING
             - uuid: bb9b8c05bb0049afa2bc32e40d2cc032
@@ -4334,18 +4335,18 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: 26146a5f2dc04efcb0862e1ffa62eec8
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Жарко'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 33c7843dc1e24838b7cd2cb6a6a0ea66
-                  expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-msw2[{#DEVICE}/Temperature],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
                   name: '{#NAME}: Холодно'
                   priority: AVERAGE
                   tags:
@@ -4396,25 +4397,25 @@ zabbix_export:
                   value: env
               trigger_prototypes:
                 - uuid: dde549d8ac70425eb89357d0c78de9e9
-                  expression: 'nodata(/Template MQTT/wb-w1[{#DEVICE}],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  expression: 'nodata(/Wirenboard by mqtt-exporter/wb-w1[{#DEVICE}],{$CHECK_NODATA:"{#MACRO}"})=1'
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   tags:
                     - tag: error
                       value: nodata
                 - uuid: 35b3871a99954fe8abcf158545c70b9d
-                  expression: 'avg(/Template MQTT/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}"}'
                   name: '{#NAME}: Жарко'
                   priority: INFO
                   tags:
                     - tag: temp
                       value: high
                 - uuid: 1b1d538deb134affb594389755cb1b8a
-                  expression: 'avg(/Template MQTT/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
+                  expression: 'avg(/Wirenboard by mqtt-exporter/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template MQTT/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
+                  recovery_expression: 'avg(/Wirenboard by mqtt-exporter/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}"}'
                   name: '{#NAME}: Холодно'
                   priority: AVERAGE
                   tags:
@@ -4461,7 +4462,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 3422dc06cc744fbc9d6a16f5c449197f
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN1])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN1}'
                   priority: WARNING
             - uuid: fb7c42590252439393d31be7ba7cf7e5
@@ -4486,7 +4487,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 23d98d7f638649f6b83a203af1430bd2
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN2])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN2}'
                   priority: WARNING
             - uuid: cb057967ff6a4a44ac1a820c303d9cc6
@@ -4511,7 +4512,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: c7ebd5c811d542748f7f1a6999d2180c
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN3])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN3])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN3}'
                   priority: WARNING
             - uuid: 154369172e134c72bb756e5b230def14
@@ -4536,7 +4537,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 3ed86da92c84499ea96b9549b0ee45e3
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN4])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN4])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN4}'
                   priority: WARNING
             - uuid: 37bda7f69e0c46619750890d2920ae9b
@@ -4561,7 +4562,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 37a102f28a5643e3811219e80ffcaefd
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN5])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN5])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN5}'
                   priority: WARNING
             - uuid: 3410549c375a408c88529873ebfd3267
@@ -4586,7 +4587,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: ea4e1d90a810458192aca829e5220bad
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN6])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN6])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN6}'
                   priority: WARNING
             - uuid: f444858b7cf749ba936b3842525857cf
@@ -4611,7 +4612,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 0d283773cd94404f9d53472354056c46
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN7])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN7])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN7}'
                   priority: WARNING
             - uuid: 9d229f0f56ed4cbb9bef2339b583cce1
@@ -4636,7 +4637,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d801e9d36ca14a999674048f0d661199
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN8])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN8])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN8}'
                   priority: WARNING
             - uuid: 26028cd1ac69432286a029e02464e889
@@ -4661,7 +4662,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: dcb8c44d584f4ee3bbae2172c5987a32
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN9])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN9])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN9}'
                   priority: WARNING
             - uuid: c61021676bb14a6a9bbd2e608b04c9ea
@@ -4686,7 +4687,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 5d53522729fc46b39e91776cb55519e8
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN10])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN10])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN10}'
                   priority: WARNING
             - uuid: f4292f561df24068a571919a43a94211
@@ -4711,7 +4712,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 27c87b8fad664c328d14e7f7cc8016da
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN11])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN11])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN11}'
                   priority: WARNING
             - uuid: 9c7bd8e2d375416d8ff1f46f4b551e74
@@ -4736,7 +4737,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 9e6150ddf4f749c3a89e3c293b4067a5
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN12])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN12])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN12}'
                   priority: WARNING
             - uuid: c3415a3679fa4bd69b063f2c0fb64395
@@ -4761,7 +4762,7 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 33d4c547d53d4036a3033cc36a1afed6
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN13])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN13])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN13}'
                   priority: WARNING
             - uuid: 4e1b7f9302cd4ee1b5145f19d994d422
@@ -4786,11 +4787,11 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 60780560e2974cc38bd09506187163b4
-                  expression: 'last(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN14])=1'
+                  expression: 'last(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN14])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN14}'
                   priority: WARNING
                 - uuid: 3f9b08545a1841cb9c67ee99412125e6
-                  expression: '(nodata(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/Template MQTT/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=0)'
+                  expression: '(nodata(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/Wirenboard by mqtt-exporter/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=0)'
                   name: '{#NAME}: {$N_{#MACRO}:IN14} давно не включался'
                   priority: WARNING
                   tags:
