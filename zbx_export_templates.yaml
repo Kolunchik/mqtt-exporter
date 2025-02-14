@@ -3856,7 +3856,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
+                  name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
@@ -4333,7 +4333,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/{#DEVICE}/controls/InputVoltage"].value'
+                    - '$.["/devices/{#DEVICE}/controls/Input Voltage"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
