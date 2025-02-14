@@ -4262,7 +4262,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
+                  name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
