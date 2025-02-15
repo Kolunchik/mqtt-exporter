@@ -23,5 +23,5 @@ zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-ms-thls.lld -o '[
 zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-mr3.lld -o '[{"{#DEVICE}":"wb-mr3lv_25"}]'
 zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-mr11.lld -o '[{"{#DEVICE}":"wb-mr11_190"}]'
 zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-mrgb.lld -o '[{"{#DEVICE}":"wb-mrgb_4"}]'
-zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-wb-mcm16.lld -o '[{"{#DEVICE}":"wb-mcm16_1"}]'
+zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-mcm16.lld -o '[{"{#DEVICE}":"wb-mcm16_1"}]'
 zabbix_sender --config /etc/zabbix/zabbix_agentd.conf -v -k wb-mrm2.lld -o '[{"{#DEVICE}":"wb-mrm2_21"}]'```

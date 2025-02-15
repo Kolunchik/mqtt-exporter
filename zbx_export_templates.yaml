@@ -3383,7 +3383,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/{#DEVICE}/controls/Supply Voltage"].value'
+                    - '$.["/devices/{#DEVICE}/controls/Supply voltage"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
