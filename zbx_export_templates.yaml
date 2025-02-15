@@ -87,7 +87,7 @@ zabbix_export:
           triggers:
             - uuid: d090a77b8e784918a375d869b16c0b23
               expression: 'last(/WB by m-e/exporter[mqtt_connections_total],#1)-last(/WB by m-e/exporter[mqtt_connections_total],#5)>3'
-              name: '{$N_MQTT}: mqtt-exporter необычно часто переподключается к брокеру'
+              name: '{$N_MQTT}: mqtt-exporter слишком часто подключается к брокеру'
               manual_close: 'YES'
               tags:
                 - tag: error
@@ -3818,7 +3818,7 @@ zabbix_export:
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
             - uuid: 168a08052cbb4feb83b7601f0340cba8
-              name: '{#NAME}: Температура {$N_{#MACRO}:W1}'
+              name: '{$N_{#MACRO}:W1}: Температура'
               type: DEPENDENT
               key: 'wb-ms-thls[{#DEVICE}/External Sensor 1]'
               history: '{$W_HISTORY}'
@@ -3846,7 +3846,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
-                  name: '{#NAME}: Жарко {$N_{#MACRO}:W1}'
+                  name: '{$N_{#MACRO}:W1}: Жарко'
                   priority: INFO
                   manual_close: 'YES'
                   tags:
@@ -3856,14 +3856,14 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
+                  name: '{$N_{#MACRO}:W1}: Холодно'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
                     - tag: temp
                       value: low
             - uuid: 22a4a25af7954b5cbe0bd46dddf2c103
-              name: '{#NAME}: Температура {$N_{#MACRO}:W2}'
+              name: '{$N_{#MACRO}:W2}: Температура'
               type: DEPENDENT
               key: 'wb-ms-thls[{#DEVICE}/External Sensor 2]'
               history: '{$W_HISTORY}'
@@ -3891,7 +3891,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
-                  name: '{#NAME}: Жарко {$N_{#MACRO}:W2}'
+                  name: '{$N_{#MACRO}:W2}: Жарко'
                   priority: INFO
                   manual_close: 'YES'
                   tags:
@@ -3901,7 +3901,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-ms-thls[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
+                  name: '{$N_{#MACRO}:W2}: Холодно'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
@@ -4179,7 +4179,7 @@ zabbix_export:
                     - tag: CO2
                       value: high
             - uuid: cfb2272f62614344b32efb3e4065ed11
-              name: '{#NAME}: Температура {$N_{#MACRO}:W1}'
+              name: '{$N_{#MACRO}:W1}: Температура'
               type: DEPENDENT
               key: 'wb-msw2[{#DEVICE}/External Sensor 1]'
               history: '{$W_HISTORY}'
@@ -4207,7 +4207,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W1"}'
-                  name: '{#NAME}: Жарко {$N_{#MACRO}:W1}'
+                  name: '{$N_{#MACRO}:W1}: Жарко'
                   priority: INFO
                   manual_close: 'YES'
                   tags:
@@ -4217,14 +4217,14 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W1"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 1],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W1"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W1}'
+                  name: '{$N_{#MACRO}:W1}: Холодно'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
                     - tag: temp
                       value: low
             - uuid: 4958076bed3144589b9d388c1d46ba05
-              name: '{#NAME}: Температура {$N_{#MACRO}:W2}'
+              name: '{$N_{#MACRO}:W2}: Температура'
               type: DEPENDENT
               key: 'wb-msw2[{#DEVICE}/External Sensor 2]'
               history: '{$W_HISTORY}'
@@ -4252,7 +4252,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MAX_OK:"{#MACRO}_W2"}'
-                  name: '{#NAME}: Жарко {$N_{#MACRO}:W2}'
+                  name: '{$N_{#MACRO}:W2}: Жарко'
                   priority: INFO
                   manual_close: 'YES'
                   tags:
@@ -4262,7 +4262,7 @@ zabbix_export:
                   expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})<{$TEMP_MIN:"{#MACRO}_W2"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'avg(/WB by m-e/wb-msw2[{#DEVICE}/External Sensor 2],{$CHECK_INTERVAL})>{$TEMP_MIN_OK:"{#MACRO}_W2"}'
-                  name: '{#NAME}: Холодно {$N_{#MACRO}:W2}'
+                  name: '{$N_{#MACRO}:W2}: Холодно'
                   priority: AVERAGE
                   manual_close: 'YES'
                   tags:
