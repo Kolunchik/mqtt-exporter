@@ -312,6 +312,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"status":      "ok",
 		"maxLength":   maxLength,
 		"tiny":        tiny,
+		"ttl":         ttl.String(),
 		"noCleanup":   noCleanup,
 		"uptime":      time.Since(startTime).String(),
 		"version":     appVersion,
