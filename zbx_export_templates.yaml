@@ -112,7 +112,7 @@ zabbix_export:
               value: uptime
           triggers:
             - uuid: eb4f57af09fa4f6db3768d0bcecd33da
-              expression: 'last(/WB by m-e/exporter[uptime_seconds])<{$CHECK_NODATA}'
+              expression: 'change(/WB by m-e/exporter[uptime_seconds])<=0'
               name: '{$N_MQTT}: mqtt-exporter был перезапущен'
               manual_close: 'YES'
               tags:
