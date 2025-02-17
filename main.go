@@ -154,6 +154,7 @@ func processRegularMetric(topic string, payload []byte) {
 	var valueType string
 
 	if maxLength > 0 && len(payload) > maxLength {
+		log.Printf("Payload length for %q exceeds the set limit", topic)
 		return
 	}
 
