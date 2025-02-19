@@ -1283,42 +1283,6 @@ zabbix_export:
           key: wb-mcm16.lld
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
-            - uuid: ad9881cf68b748428fdd89c4e006f2d8
-              name: '{#NAME}: Ошибка связи с датчиком'
-              type: DEPENDENT
-              key: 'wb-mcm16[{#DEVICE}/Counter 1/error]'
-              history: '{$INPUT_HISTORY}'
-              trends: '{$INPUT_TREND}'
-              valuemap:
-                name: mqttErrors
-              preprocessing:
-                - type: JSONPATH
-                  parameters:
-                    - '$.["/devices/{#DEVICE}/controls/Counter 1/meta/error"].value'
-                - type: JAVASCRIPT
-                  parameters:
-                    - |
-                      var a={
-                       "r": 1, // Ошибка чтения
-                       "w": 2, // Ошибка записи
-                       "rw": 3, // Ошибка чтения и записи
-                       "wr": 3, // Ошибка чтения и записи
-                      };
-                      
-                      return a[value]||value;
-              master_item:
-                key: 'mqtt[metrics]'
-              tags:
-                - tag: mqtt
-                  value: '{#DEVICE}'
-                - tag: type
-                  value: error
-              trigger_prototypes:
-                - uuid: d1678b4e3b764140b454748a130fa3e3
-                  expression: 'last(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 1/error])<>0'
-                  name: '{#NAME}: Ошибка связи с датчиком'
-                  priority: WARNING
-                  manual_close: 'YES'
             - uuid: e541a3b276f84d7bad48c434a4563365
               name: '{#NAME}: {$N_{#MACRO}:I1} (счетчик)'
               type: DEPENDENT
@@ -1670,6 +1634,42 @@ zabbix_export:
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I13}'
                       expression: 'last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 13])=1'
+            - uuid: ad9881cf68b748428fdd89c4e006f2d8
+              name: '{#NAME}: Ошибка связи с датчиком'
+              type: DEPENDENT
+              key: 'wb-mcm16[{#DEVICE}/Counter 14/error]'
+              history: '{$INPUT_HISTORY}'
+              trends: '{$INPUT_TREND}'
+              valuemap:
+                name: mqttErrors
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/Counter 14/meta/error"].value'
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var a={
+                       "r": 1, // Ошибка чтения
+                       "w": 2, // Ошибка записи
+                       "rw": 3, // Ошибка чтения и записи
+                       "wr": 3, // Ошибка чтения и записи
+                      };
+                      
+                      return a[value]||value;
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: error
+              trigger_prototypes:
+                - uuid: d1678b4e3b764140b454748a130fa3e3
+                  expression: 'last(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 14/error])<>0'
+                  name: '{#NAME}: Ошибка связи с датчиком'
+                  priority: WARNING
+                  manual_close: 'YES'
             - uuid: edf5d96b43514ef6af85255938694783
               name: '{#NAME}: {$N_{#MACRO}:I14} (счетчик)'
               type: DEPENDENT
@@ -1764,7 +1764,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 1"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1791,7 +1790,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 2"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1818,7 +1816,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 3"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1845,7 +1842,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 4"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1872,7 +1868,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 5"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1899,7 +1894,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 6"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1926,7 +1920,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 7"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1953,7 +1946,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 8"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1980,7 +1972,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 9"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2007,7 +1998,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 10"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2034,7 +2024,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 11"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2061,7 +2050,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 12"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2088,7 +2076,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 13"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2115,7 +2102,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 14"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2150,7 +2136,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 15"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2177,7 +2162,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Input 16"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -4134,7 +4118,6 @@ zabbix_export:
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Buzzer"].value'
                   error_handler: DISCARD_VALUE
-                - type: BOOL_TO_DECIMAL
               master_item:
                 key: 'mqtt[metrics]'
               tags:
