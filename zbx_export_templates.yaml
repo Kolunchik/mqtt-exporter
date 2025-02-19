@@ -277,7 +277,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1121,7 +1121,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -1656,7 +1656,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2263,7 +2263,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -2539,7 +2539,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -3532,7 +3532,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -3641,7 +3641,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -4029,7 +4029,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
@@ -4389,7 +4389,7 @@ zabbix_export:
                        "wr": 3, // Ошибка чтения и записи
                       };
                       
-                      return a[value]||value;
+                      return a[value]||0;
               master_item:
                 key: 'mqtt[metrics]'
               tags:
