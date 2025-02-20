@@ -42,21 +42,19 @@ type metricValue struct {
 }
 
 var (
-	metrics         sync.Map
-	ttl             time.Duration
-	startTime       = time.Now()
-	appVersion      = "1.0.0"
-	memStats        runtime.MemStats
-	metricsLock     sync.RWMutex
-	countersLock    sync.Mutex
-	httpRequests    atomic.Uint64
-	mqttConnections atomic.Uint64
-	noCleanup       bool
-	tiny            bool
-	mqttConnected   atomic.Uint32
-	maxLength       int
-	mqttBroker      string
-	mqttTopic       string
+	metrics                       sync.Map
+	ttl                           time.Duration
+	startTime                     = time.Now()
+	memStats                      runtime.MemStats
+	metricsLock                   sync.RWMutex
+	countersLock                  sync.Mutex
+	httpRequests                  atomic.Uint64
+	mqttConnections               atomic.Uint64
+	noCleanup                     bool
+	tiny                          bool
+	mqttConnected                 atomic.Uint32
+	maxLength                     int
+	mqttBroker, mqttTopic, commit string
 )
 
 func main() {
@@ -100,13 +98,13 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
-			"name":    "MQTT Exporter",
-			"version": appVersion,
-			"api":     APIVersion,
+			"name":   "MQTT Exporter",
+			"commit": commit,
+			"api":    APIVersion,
 		})
 	})
 
-	log.Printf("Starting mqtt-exporter v%s on %s", appVersion, *httpAddr)
+	log.Printf("Starting mqtt-exporter %s on %s", commit, *httpAddr)
 	log.Fatal(http.ListenAndServe(*httpAddr, nil))
 }
 
@@ -316,7 +314,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"ttl":         ttl.String(),
 		"noCleanup":   noCleanup,
 		"uptime":      time.Since(startTime).String(),
-		"version":     appVersion,
+		"commit":      commit,
 		"api_version": APIVersion,
 		"timestamp":   time.Now().Unix(),
 		"metrics":     result,
