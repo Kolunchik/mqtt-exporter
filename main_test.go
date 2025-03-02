@@ -101,7 +101,7 @@ func TestProcessRegularMetric(t *testing.T) {
 	topic := "test/topic"
 	payload := []byte("42.5")
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, 0)
 
 	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
@@ -111,18 +111,18 @@ func TestProcessRegularMetric(t *testing.T) {
 }
 
 func TestProcessRegularMetricMaxLength(t *testing.T) {
-	maxLength = 0
+	maxLength := 0
 	topic := "test/short"
 	payload := []byte("blah")
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, maxLength)
 
 	_, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
 
 	maxLength = 2
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, maxLength)
 
 	topic = "test/long"
 	payload = []byte("blah")
@@ -137,7 +137,7 @@ func TestProcessRegularMetric_InvalidPayload(t *testing.T) {
 	topic := "test/topic"
 	invalidPayload := []byte("not_a_number")
 
-	processRegularMetric(topic, invalidPayload)
+	processRegularMetric(topic, invalidPayload, 0)
 
 	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена даже при невалидном payload")
@@ -222,12 +222,12 @@ func TestMetricsHandlerTiny(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(metricsHandler)
 
-	tiny = true
+	opts.tiny = true
 
 	handler.ServeHTTP(rr, req)
 	httpRequestsCounter++
 
-	tiny = false
+	opts.tiny = false
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
@@ -377,7 +377,7 @@ func TestCleanupTask(t *testing.T) {
 	topic := "test/topic"
 	payload := []byte("42.5")
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, 0)
 
 	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
@@ -385,7 +385,7 @@ func TestCleanupTask(t *testing.T) {
 	m := val.(*metricValue)
 	m.updatedAt = time.Now().Add(-10 * time.Minute)
 
-	cleanupTask()
+	cleanupTask(false, 5*time.Minute)
 
 	_, loaded = metrics.Load(topic)
 	assert.False(t, loaded, "Метрика должна быть удалена после очистки")
@@ -395,7 +395,7 @@ func TestCleanupTaskNoCleanup(t *testing.T) {
 	topic := "test/topic"
 	payload := []byte("42.5")
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, 0)
 
 	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
@@ -403,8 +403,7 @@ func TestCleanupTaskNoCleanup(t *testing.T) {
 	m := val.(*metricValue)
 	m.updatedAt = time.Now().Add(-10 * time.Minute)
 
-	noCleanup = true
-	cleanupTask()
+	cleanupTask(true, 5*time.Minute)
 
 	_, loaded = metrics.Load(topic)
 	assert.True(t, loaded, "Метрика не должна быть удалена после очистки")
@@ -414,7 +413,7 @@ func TestCleanupTask30m(t *testing.T) {
 	topic := "test/topic"
 	payload := []byte("42.5")
 
-	processRegularMetric(topic, payload)
+	processRegularMetric(topic, payload, 0)
 
 	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
@@ -422,15 +421,12 @@ func TestCleanupTask30m(t *testing.T) {
 	m := val.(*metricValue)
 	m.updatedAt = time.Now().Add(-10 * time.Minute)
 
-	noCleanup = false
-	ttl = 30 * time.Minute
-	cleanupTask()
+	cleanupTask(false, 30*time.Minute)
 
 	_, loaded = metrics.Load(topic)
 	assert.True(t, loaded, "Метрика не должна быть удалена после очистки")
 
-	ttl = 5 * time.Minute
-	cleanupTask()
+	cleanupTask(false, 5*time.Minute)
 
 	_, loaded = metrics.Load(topic)
 	assert.False(t, loaded, "Метрика должна быть удалена после очистки")
@@ -439,7 +435,7 @@ func TestCleanupTask30m(t *testing.T) {
 func TestCleanupTask_NoMetrics(t *testing.T) {
 	metrics.Clear()
 
-	cleanupTask()
+	cleanupTask(false, 5*time.Minute)
 
 	assert.True(t, true, "Задача очистки должна завершиться без ошибок")
 }

@@ -363,8 +363,73 @@ zabbix_export:
           key: wb-map3e.lld
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
+            - uuid: 4dadd56e82cf4a02a5100f9738b2cd4b
+              name: '{#NAME}: Обратная активная энергия для фазы L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/AN energy L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kWh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/AN energy L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: a85d1691d00b4111a57457d48cd55ef3
+              name: '{#NAME}: Обратная активная энергия для фазы L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/AN energy L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kWh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/AN energy L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: e755006e835549ccaf58f8118a638baa
+              name: '{#NAME}: Обратная активная энергия для фазы L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/AN energy L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kWh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/AN energy L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
             - uuid: 8e26e412de744e5b81c3a31a9fb3e4d7
-              name: '{#NAME}: Прямая активная энергия L1'
+              name: '{#NAME}: Прямая активная энергия для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/AP energy L1]'
               history: '{$INPUT_HISTORY}'
@@ -379,12 +444,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 2ac8ae9fa77f4fbd91f9e62f2cc17dd9
-              name: '{#NAME}: Прямая активная энергия L2'
+              name: '{#NAME}: Прямая активная энергия для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/AP energy L2]'
               history: '{$INPUT_HISTORY}'
@@ -399,12 +466,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 4c25022b313e43a188a07cd228436442
-              name: '{#NAME}: Прямая активная энергия L3'
+              name: '{#NAME}: Прямая активная энергия для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/AP energy L3]'
               history: '{$INPUT_HISTORY}'
@@ -419,6 +488,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -444,7 +514,7 @@ zabbix_export:
                 - tag: type
                   value: electricity
             - uuid: c5900295714042a580f375d04eca2a33
-              name: '{#NAME}: Пиковый ток L1'
+              name: '{#NAME}: Пиковое значение тока на фазе L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Ipeak L1]'
               history: '{$INPUT_HISTORY}'
@@ -459,12 +529,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 1e812e4ebeba48e1bd8fe6b456a03161
-              name: '{#NAME}: Пиковый ток L2'
+              name: '{#NAME}: Пиковое значение тока на фазе L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Ipeak L2]'
               history: '{$INPUT_HISTORY}'
@@ -479,12 +551,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: b9f9f5e58e634071b00d256ce27a7156
-              name: '{#NAME}: Пиковый ток L3'
+              name: '{#NAME}: Пиковое значение тока на фазе L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Ipeak L3]'
               history: '{$INPUT_HISTORY}'
@@ -499,12 +573,13 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: f8dd525ac7b4405490a347a998ec45ff
-              name: '{#NAME}: Ток L1'
+              name: '{#NAME}: Ток (RMS) на фазе L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Irms L1]'
               history: '{$INPUT_HISTORY}'
@@ -519,12 +594,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 391d11dba1b04096b075de9fb3f632b5
-              name: '{#NAME}: Ток L2'
+              name: '{#NAME}: Ток (RMS) на фазе L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Irms L2]'
               history: '{$INPUT_HISTORY}'
@@ -539,12 +616,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 31ebcddf22964d93a2532e32e330cee0
-              name: '{#NAME}: Ток L3'
+              name: '{#NAME}: Ток (RMS) на фазе L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Irms L3]'
               history: '{$INPUT_HISTORY}'
@@ -559,12 +638,209 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '3'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 56d2562228df40598b3f3c08e3d8ad1e
+              name: '{#NAME}: Неактивная мощность для фазы L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/N L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: var
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/N L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 5b276bd0d860467db5e658a34794fd4d
+              name: '{#NAME}: Неактивная мощность для фазы L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/N L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: var
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/N L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 783f43cc052a4f7494ca5319e5b8cf3a
+              name: '{#NAME}: Неактивная мощность для фазы L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/N L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: var
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/N L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 7b694b7a7d9b4df3bbcc4d3966a78e80
+              name: '{#NAME}: Обратная неактивная энергия для фазы L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NN energy L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NN energy L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 3aa946a5bb53440a9bc3c35408ce7218
+              name: '{#NAME}: Обратная неактивная энергия для фазы L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NN energy L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NN energy L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: b83463d2a5ca4a03a2db7eec4f1996b9
+              name: '{#NAME}: Обратная неактивная энергия для фазы L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NN energy L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NN energy L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 3a4224b895ea4199bef53c6712384fb2
+              name: '{#NAME}: Прямая неактивная энергия для фазы L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NP energy L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NP energy L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: cb872e37870a492f931600097881711a
+              name: '{#NAME}: Прямая неактивная энергия для фазы L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NP energy L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NP energy L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 35fbf205a1f645658f303449423f37f2
+              name: '{#NAME}: Прямая неактивная энергия для фазы L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/NP energy L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/NP energy L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 120fd6c70ced4c07977c83bb2d77307f
-              name: '{#NAME}: Коэффициент мощности L1'
+              name: '{#NAME}: Коэффициент мощности для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/PF L1]'
               history: '{$INPUT_HISTORY}'
@@ -578,12 +854,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: cbcb7ef194ff4733a0c29c79793819d4
-              name: '{#NAME}: Коэффициент мощности L2'
+              name: '{#NAME}: Коэффициент мощности для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/PF L2]'
               history: '{$INPUT_HISTORY}'
@@ -597,12 +875,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: ab85d438f53c43b48467cb4e3829b246
-              name: '{#NAME}: Коэффициент мощности L3'
+              name: '{#NAME}: Коэффициент мощности для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/PF L3]'
               history: '{$INPUT_HISTORY}'
@@ -616,6 +896,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -636,6 +917,8 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -656,6 +939,8 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -676,12 +961,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '3'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: de690d226bc141b798b6d48578168051
-              name: '{#NAME}: Активная мощность L1'
+              name: '{#NAME}: Активная мощность для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/P L1]'
               history: '{$INPUT_HISTORY}'
@@ -696,12 +983,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 8a068205b9da4873b441d4a191ecef58
-              name: '{#NAME}: Активная мощность L2'
+              name: '{#NAME}: Активная мощность для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/P L2]'
               history: '{$INPUT_HISTORY}'
@@ -716,12 +1005,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 54f20a0abc7042aa903e522ee25ae1b8
-              name: '{#NAME}: Активная мощность L3'
+              name: '{#NAME}: Активная мощность для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/P L3]'
               history: '{$INPUT_HISTORY}'
@@ -736,12 +1027,13 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 52520461291140a9a2ce5518de2fd2da
-              name: '{#NAME}: Реактивная мощность L1'
+              name: '{#NAME}: Реактивная мощность для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Q L1]'
               history: '{$INPUT_HISTORY}'
@@ -756,12 +1048,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 097581f09ed042739640a9080dd24d88
-              name: '{#NAME}: Реактивная мощность L2'
+              name: '{#NAME}: Реактивная мощность для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Q L2]'
               history: '{$INPUT_HISTORY}'
@@ -776,12 +1070,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: fbbe6b6776ee4f07b8dca2fed73dca8b
-              name: '{#NAME}: Реактивная мощность L3'
+              name: '{#NAME}: Реактивная мощность для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Q L3]'
               history: '{$INPUT_HISTORY}'
@@ -796,12 +1092,78 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 58676f20b8fa454b8b2a6142ce44c071
+              name: '{#NAME}: Обратная реактивная энергия для фазы L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/RN energy L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/RN energy L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 5a9e214489e64bcb99ba4a3b38dd795c
+              name: '{#NAME}: Обратная реактивная энергия для фазы L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/RN energy L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/RN energy L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 5bb6e713b6ff495fbd98ac86faaaf511
+              name: '{#NAME}: Обратная реактивная энергия для фазы L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/RN energy L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kvarh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/RN energy L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 797929be5e7c49bf9cf245317c530718
-              name: '{#NAME}: Прямая реактивная энергия L1'
+              name: '{#NAME}: Прямая реактивная энергия для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/RP energy L1]'
               history: '{$INPUT_HISTORY}'
@@ -816,12 +1178,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: aa1cbc0767f74cc691e74ecfb6414e91
-              name: '{#NAME}: Прямая реактивная энергия L2'
+              name: '{#NAME}: Прямая реактивная энергия для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/RP energy L2]'
               history: '{$INPUT_HISTORY}'
@@ -836,12 +1200,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 7542ebe304b4446ebd327a0e84af9e6e
-              name: '{#NAME}: Прямая реактивная энергия L3'
+              name: '{#NAME}: Прямая реактивная энергия для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/RP energy L3]'
               history: '{$INPUT_HISTORY}'
@@ -856,12 +1222,13 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: b98129a129954abba0c4eb1da39ff3a4
-              name: '{#NAME}: Полная мощность L1'
+              name: '{#NAME}: Кажущаяся мощность для фазы L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/S L1]'
               history: '{$INPUT_HISTORY}'
@@ -876,12 +1243,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: d399d80dd3e045598fa31aa46d28fcd8
-              name: '{#NAME}: Полная мощность L2'
+              name: '{#NAME}: Кажущаяся мощность для фазы L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/S L2]'
               history: '{$INPUT_HISTORY}'
@@ -896,12 +1265,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 36a8157549cc4d87871a58e322e0b13c
-              name: '{#NAME}: Полная мощность L3'
+              name: '{#NAME}: Кажущаяся мощность для фазы L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/S L3]'
               history: '{$INPUT_HISTORY}'
@@ -912,6 +1283,27 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/S L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: f500f1090aa14cf5962001e6ca90d95b
+              name: '{#NAME}: Суммарная обратная активная энергия'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/Total AN energy]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kWh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/Total AN energy"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -932,6 +1324,26 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - '$.["/devices/{#DEVICE}/controls/Total AP energy"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 513b675b400b4f65ac5dba26fd7546dc
+              name: '{#NAME}: Суммарная неактивная мощность'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/Total N]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: var
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/Total N"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -999,6 +1411,26 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
+            - uuid: f0a86863e98b458182324114413af394
+              name: '{#NAME}: Суммарная обратная реактивная энергия'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/Total RN energy]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: kWh
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/Total RN energy"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
             - uuid: e5bfb7e25d964d2e8a2c8e11d36ded3f
               name: '{#NAME}: Суммарная прямая реактивная энергия'
               type: DEPENDENT
@@ -1039,8 +1471,78 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
+            - uuid: 9401b4eff6b84734b843797484d8b58b
+              name: '{#NAME}: Линейное напряжение между фазами L1-L2'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/U L1-L2]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/U L1-L2"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: L
+                  value: '2'
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 416368a47ce848af8a40267bbfbe546d
+              name: '{#NAME}: Линейное напряжение между фазами L2-L3'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/U L2-L3]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/U L2-L3"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '2'
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
+            - uuid: 73a21c8824b34dbb88e25857484257c9
+              name: '{#NAME}: Линейное напряжение между фазами L3-L1'
+              type: DEPENDENT
+              key: 'wb-map3e[{#DEVICE}/U L3-L1]'
+              history: '{$INPUT_HISTORY}'
+              value_type: FLOAT
+              trends: '{$INPUT_TREND}'
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["/devices/{#DEVICE}/controls/U L3-L1"].value'
+                  error_handler: DISCARD_VALUE
+              master_item:
+                key: 'mqtt[metrics]'
+              tags:
+                - tag: L
+                  value: '1'
+                - tag: L3
+                - tag: mqtt
+                  value: '{#DEVICE}'
+                - tag: type
+                  value: electricity
             - uuid: 959a24f15a4248faac7dd3b51e979871
-              name: '{#NAME}: Пиковое напряжение L1'
+              name: '{#NAME}: Пиковое значение напряжения на фазе L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Upeak L1]'
               history: '{$INPUT_HISTORY}'
@@ -1055,12 +1557,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 396bae22dc6e47ecac1ace72e8a7d259
-              name: '{#NAME}: Пиковое напряжение L2'
+              name: '{#NAME}: Пиковое значение напряжения на фазе L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Upeak L2]'
               history: '{$INPUT_HISTORY}'
@@ -1075,12 +1579,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 70ae9761916a4843b5fbaf5b27677541
-              name: '{#NAME}: Пиковое напряжение L3'
+              name: '{#NAME}: Пиковое значение напряжения на фазе L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Upeak L3]'
               history: '{$INPUT_HISTORY}'
@@ -1095,6 +1601,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -1136,7 +1643,7 @@ zabbix_export:
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: d95c89efb5bf4a3ba488822557dc999e
-              name: '{#NAME}: Напряжение L1'
+              name: '{#NAME}: Напряжение (RMS) на фазе L1'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Urms L1]'
               history: '{$INPUT_HISTORY}'
@@ -1151,6 +1658,8 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -1165,7 +1674,7 @@ zabbix_export:
                     - tag: error
                       value: nodata
             - uuid: 98cdae5aed21492db13c0fb5ff9a0d01
-              name: '{#NAME}: Напряжение L2'
+              name: '{#NAME}: Напряжение (RMS) на фазе L2'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Urms L2]'
               history: '{$INPUT_HISTORY}'
@@ -1180,12 +1689,14 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 963c345b76c64603984a1e31607afb54
-              name: '{#NAME}: Напряжение L3'
+              name: '{#NAME}: Напряжение (RMS) на фазе L3'
               type: DEPENDENT
               key: 'wb-map3e[{#DEVICE}/Urms L3]'
               history: '{$INPUT_HISTORY}'
@@ -1200,6 +1711,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L3
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -1220,6 +1732,8 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -1240,6 +1754,8 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '2'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -1260,6 +1776,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: L
+                  value: '1'
+                - tag: L
+                  value: '3'
                 - tag: mqtt
                   value: '{#DEVICE}'
                 - tag: type
@@ -4540,9 +5060,9 @@ zabbix_export:
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
             - uuid: eb15309f3fba40c39903784be3aa8232
-              name: '{#NAME}: {$N_{#MACRO}:IN1}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}1}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN1]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}1]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4550,7 +5070,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN1"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}1"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4561,14 +5081,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 3422dc06cc744fbc9d6a16f5c449197f
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN1])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}1])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN1}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: fb7c42590252439393d31be7ba7cf7e5
-              name: '{#NAME}: {$N_{#MACRO}:IN2}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}2}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN2]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}2]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4576,7 +5096,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN2"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}2"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4587,14 +5107,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 23d98d7f638649f6b83a203af1430bd2
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN2])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}2])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN2}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: cb057967ff6a4a44ac1a820c303d9cc6
-              name: '{#NAME}: {$N_{#MACRO}:IN3}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}3}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN3]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}3]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4602,7 +5122,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN3"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}3"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4613,14 +5133,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: c7ebd5c811d542748f7f1a6999d2180c
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN3])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}3])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN3}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 154369172e134c72bb756e5b230def14
-              name: '{#NAME}: {$N_{#MACRO}:IN4}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}4}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN4]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}4]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4628,7 +5148,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN4"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}4"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4639,14 +5159,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 3ed86da92c84499ea96b9549b0ee45e3
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN4])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}4])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN4}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 37bda7f69e0c46619750890d2920ae9b
-              name: '{#NAME}: {$N_{#MACRO}:IN5}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}5}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN5]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}5]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4654,7 +5174,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN5"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}5"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4665,14 +5185,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 37a102f28a5643e3811219e80ffcaefd
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN5])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}5])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN5}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 3410549c375a408c88529873ebfd3267
-              name: '{#NAME}: {$N_{#MACRO}:IN6}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}6}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN6]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}6]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4680,7 +5200,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN6"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}6"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4691,14 +5211,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: ea4e1d90a810458192aca829e5220bad
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN6])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}6])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN6}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: f444858b7cf749ba936b3842525857cf
-              name: '{#NAME}: {$N_{#MACRO}:IN7}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}7}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN7]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}7]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4706,7 +5226,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN7"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}7"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4717,14 +5237,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 0d283773cd94404f9d53472354056c46
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN7])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}7])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN7}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 9d229f0f56ed4cbb9bef2339b583cce1
-              name: '{#NAME}: {$N_{#MACRO}:IN8}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}8}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN8]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}8]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4732,7 +5252,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN8"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}8"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4743,14 +5263,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: d801e9d36ca14a999674048f0d661199
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN8])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}8])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN8}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 26028cd1ac69432286a029e02464e889
-              name: '{#NAME}: {$N_{#MACRO}:IN9}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}9}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN9]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}9]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4758,7 +5278,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN9"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}9"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4769,14 +5289,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: dcb8c44d584f4ee3bbae2172c5987a32
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN9])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}9])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN9}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: c61021676bb14a6a9bbd2e608b04c9ea
-              name: '{#NAME}: {$N_{#MACRO}:IN10}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}10}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN10]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}10]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4784,7 +5304,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN10"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}10"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4795,14 +5315,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 5d53522729fc46b39e91776cb55519e8
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN10])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}10])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN10}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: f4292f561df24068a571919a43a94211
-              name: '{#NAME}: {$N_{#MACRO}:IN11}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}11}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN11]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}11]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4810,7 +5330,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN11"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}11"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4821,14 +5341,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 27c87b8fad664c328d14e7f7cc8016da
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN11])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}11])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN11}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 9c7bd8e2d375416d8ff1f46f4b551e74
-              name: '{#NAME}: {$N_{#MACRO}:IN12}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}12}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN12]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}12]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4836,7 +5356,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN12"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}12"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4847,14 +5367,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 9e6150ddf4f749c3a89e3c293b4067a5
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN12])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}12])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN12}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: c3415a3679fa4bd69b063f2c0fb64395
-              name: '{#NAME}: {$N_{#MACRO}:IN13}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}13}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN13]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}13]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4862,7 +5382,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN13"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}13"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4873,14 +5393,14 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 33d4c547d53d4036a3033cc36a1afed6
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN13])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}13])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN13}'
                   priority: WARNING
                   manual_close: 'YES'
             - uuid: 4e1b7f9302cd4ee1b5145f19d994d422
-              name: '{#NAME}: {$N_{#MACRO}:IN14}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}'
               type: DEPENDENT
-              key: 'wbio-di-wd-14[{#DEVICE}_IN14]'
+              key: 'wbio-di-wd-14[{#DEVICE}_{#PREF}14]'
               history: '{$INPUT_HISTORY}'
               trends: '{$INPUT_TREND}'
               valuemap:
@@ -4888,7 +5408,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_IN14"].value'
+                    - '$.["/devices/wb-gpio/controls/{#DEVICE}_{#PREF}14"].value'
                   error_handler: DISCARD_VALUE
               master_item:
                 key: 'mqtt[metrics]'
@@ -4899,12 +5419,12 @@ zabbix_export:
                   value: dry
               trigger_prototypes:
                 - uuid: 60780560e2974cc38bd09506187163b4
-                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN14])=1'
+                  expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14])=1'
                   name: '{#NAME}: {$N_{#MACRO}:IN14}'
                   priority: WARNING
                   manual_close: 'YES'
                 - uuid: 3f9b08545a1841cb9c67ee99412125e6
-                  expression: '(nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/WB by m-e/wbio-di-wd-14[{#DEVICE}_IN14],{$CHECK_NODATA:"{#MACRO}"})=0)'
+                  expression: '(nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=0)'
                   name: '{#NAME}: {$N_{#MACRO}:IN14} давно не включался'
                   priority: WARNING
                   manual_close: 'YES'
@@ -4993,16 +5513,16 @@ zabbix_export:
           value: 'Работает генератор'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN10}'
-          value: (резерв)
+          value: '(резерв 10)'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN11}'
-          value: (резерв)
+          value: 'Сработала сигнализация'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN12}'
-          value: (резерв)
+          value: '(резерв 12)'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN13}'
-          value: (резерв)
+          value: '(резерв 13)'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN14}'
           value: Автотест
@@ -5032,31 +5552,31 @@ zabbix_export:
           value: 'Авария приточно-вытяжной вентиляции'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I8}'
-          value: (резерв)
+          value: 'Отсутствие входящей электроэнергии'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I9}'
-          value: (резерв)
+          value: 'Работает генератор'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I10}'
-          value: (резерв)
+          value: '(резерв 10)'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I11}'
-          value: (резерв)
+          value: 'Сработала сигнализация'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I12}'
-          value: (резерв)
+          value: '(резерв 12)'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I13}'
-          value: (резерв)
+          value: '(резерв 13)'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I14}'
           value: Автотест
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I15}'
-          value: 'Отсутствие входящей электроэнергии'
+          value: '(резерв 15)'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I16}'
-          value: 'Работает генератор'
+          value: '(резерв 16)'
           description: 'понятное название входа датчика'
         - macro: '{$TEMP_MAX}'
           value: '40'

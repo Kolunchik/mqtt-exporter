@@ -12,7 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"unicode"
+	//"unicode"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -42,54 +42,61 @@ type metricValue struct {
 }
 
 var (
-	metrics                       sync.Map
-	ttl                           time.Duration
-	startTime                     = time.Now()
-	memStats                      runtime.MemStats
-	metricsLock                   sync.RWMutex
-	countersLock                  sync.Mutex
-	httpRequests                  atomic.Uint64
-	mqttConnections               atomic.Uint64
-	noCleanup                     bool
-	tiny                          bool
-	mqttConnected                 atomic.Uint32
-	maxLength                     int
-	mqttBroker, mqttTopic, commit string
+	metrics         sync.Map
+	startTime       = time.Now()
+	memStats        runtime.MemStats
+	metricsLock     sync.RWMutex
+	countersLock    sync.Mutex
+	httpRequests    atomic.Uint64
+	mqttConnections atomic.Uint64
+	mqttConnected   atomic.Uint32
 )
 
+var opts struct {
+	broker    string
+	topic     string
+	maxLength int
+	ttl       time.Duration
+	noCleanup bool
+	tiny      bool
+	httpAddr  string
+}
+
+var commit = "unknown"
+
 func main() {
-	httpAddr := flag.String("http-addr", "localhost:8080", "HTTP server address")
-	flag.StringVar(&mqttBroker, "mqtt-broker", "tcp://localhost:1883", "MQTT broker address")
-	flag.StringVar(&mqttTopic, "mqtt-topic", "#", "MQTT topic to subscribe")
-	flag.IntVar(&maxLength, "max-length", 0, "Maximum payload length")
-	flag.DurationVar(&ttl, "ttl", 5*time.Minute, "Metrics TTL")
-	flag.BoolVar(&noCleanup, "no-cleanup", false, "Disable metrics cleanup")
-	flag.BoolVar(&tiny, "tiny", false, "Compact output")
+	flag.StringVar(&opts.httpAddr, "http-addr", "localhost:8080", "HTTP server address")
+	flag.StringVar(&opts.broker, "broker", "tcp://localhost:1883", "MQTT broker address")
+	flag.StringVar(&opts.topic, "topic", "#", "MQTT topic to subscribe")
+	flag.IntVar(&opts.maxLength, "max-length", 0, "Maximum payload length")
+	flag.DurationVar(&opts.ttl, "ttl", 5*time.Minute, "Metrics TTL")
+	flag.BoolVar(&opts.noCleanup, "no-cleanup", false, "Disable metrics cleanup")
+	flag.BoolVar(&opts.tiny, "tiny", false, "Compact output")
 	flag.Parse()
 
-	opts := mqtt.NewClientOptions().AddBroker(mqttBroker)
-	opts.SetClientID("mqtt-exporter")
-	opts.SetAutoReconnect(true)
-	opts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
+	mo := mqtt.NewClientOptions().AddBroker(opts.broker)
+	mo.SetClientID("mqtt-exporter")
+	mo.SetAutoReconnect(true)
+	mo.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
 		mqttConnected.Store(0)
 		log.Printf("Connection lost: %v", err)
 	})
-	opts.SetOnConnectHandler(func(c mqtt.Client) {
+	mo.SetOnConnectHandler(func(c mqtt.Client) {
 		mqttConnected.Store(1)
 		mqttConnections.Add(1)
-		log.Printf("Connected to %v", mqttBroker)
-		c.Subscribe(mqttTopic, 0, nil)
+		log.Printf("Connected to %v", opts.broker)
+		c.Subscribe(opts.topic, 0, nil)
 	})
-	opts.SetDefaultPublishHandler(messageHandler)
+	mo.SetDefaultPublishHandler(messageHandler)
 
-	client := mqtt.NewClient(opts)
+	client := mqtt.NewClient(mo)
 
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatal("Connection error:", token.Error())
 	}
 
-	if !noCleanup {
-		go scheduledCleanupTask()
+	if !opts.noCleanup {
+		go scheduledCleanupTask(opts.ttl)
 	}
 	go scheduledCollectMemoryStats()
 
@@ -98,14 +105,13 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
-			"name":   "MQTT Exporter",
+			"name":   "mqtt-exporter",
 			"commit": commit,
-			"api":    APIVersion,
 		})
 	})
 
-	log.Printf("Starting mqtt-exporter %s on %s", commit, *httpAddr)
-	log.Fatal(http.ListenAndServe(*httpAddr, nil))
+	log.Printf("Starting mqtt-exporter %s on %s", commit, opts.httpAddr)
+	log.Fatal(http.ListenAndServe(opts.httpAddr, nil))
 }
 
 func messageHandler(_ mqtt.Client, msg mqtt.Message) {
@@ -118,7 +124,7 @@ func messageHandler(_ mqtt.Client, msg mqtt.Message) {
 	if isCounter(topic) {
 		processCounter(topic, payload)
 	} else {
-		processRegularMetric(topic, payload)
+		processRegularMetric(topic, payload, opts.maxLength)
 	}
 }
 
@@ -147,7 +153,7 @@ func processCounter(topic string, payload []byte) {
 	}
 }
 
-func processRegularMetric(topic string, payload []byte) {
+func processRegularMetric(topic string, payload []byte, maxLength int) {
 	var value interface{}
 	var valueType string
 
@@ -193,31 +199,31 @@ func processRegularMetric(topic string, payload []byte) {
 }
 
 func isBinaryData(data []byte) bool {
-	return false
+	/*
+		const maxTextCheck = 512
+		checkLength := len(data)
 
-	const maxTextCheck = 512
-	checkLength := len(data)
-
-	if checkLength < 1 {
-		return false
-	}
-
-	if data[0] == '{' {
-		return false
-	}
-
-	if checkLength > maxTextCheck {
-		checkLength = maxTextCheck
-	}
-
-	for _, b := range data[:checkLength] {
-		if !unicode.Is(unicode.Cyrillic, rune(b)) {
+		if checkLength < 1 {
 			return false
 		}
-		if !unicode.IsPrint(rune(b)) && !unicode.IsSpace(rune(b)) {
-			return true
+
+		if data[0] == '{' {
+			return false
 		}
-	}
+
+		if checkLength > maxTextCheck {
+			checkLength = maxTextCheck
+		}
+
+		for _, b := range data[:checkLength] {
+			if !unicode.Is(unicode.Cyrillic, rune(b)) {
+				return false
+			}
+			if !unicode.IsPrint(rune(b)) && !unicode.IsSpace(rune(b)) {
+				return true
+			}
+		}
+	*/
 	return false
 }
 
@@ -237,7 +243,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 			Timestamp: ts,
 		}
 
-		if !tiny {
+		if !opts.tiny {
 			metric.Topic = key
 			metric.Type = m.valueType
 			metric.RFC3339 = time.Unix(0, ts*int64(time.Millisecond)).Format(time.RFC3339)
@@ -308,33 +314,32 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":      "ok",
-		"maxLength":   maxLength,
-		"tiny":        tiny,
-		"ttl":         ttl.String(),
-		"noCleanup":   noCleanup,
-		"uptime":      time.Since(startTime).String(),
-		"commit":      commit,
-		"api_version": APIVersion,
-		"timestamp":   time.Now().Unix(),
-		"metrics":     result,
-		"mqttBroker":  mqttBroker,
-		"mqttTopic":   mqttTopic,
+		"opts": map[string]interface{}{
+			"maxLength": opts.maxLength,
+			"tiny":      opts.tiny,
+			"ttl":       opts.ttl.String(),
+			"noCleanup": opts.noCleanup,
+			"broker":    opts.broker,
+			"topic":     opts.topic,
+		},
+		"status":    "ok",
+		"uptime":    time.Since(startTime).String(),
+		"commit":    commit,
+		"timestamp": time.Now().Unix(),
+		"metrics":   result,
 	})
 }
 
-func scheduledCleanupTask() {
+func scheduledCleanupTask(ttl time.Duration) {
 	for range time.Tick(time.Minute) {
-		cleanupTask()
+		cleanupTask(false, ttl)
 	}
-
 }
 
-func cleanupTask() {
+func cleanupTask(noCleanup bool, ttl time.Duration) {
 	if noCleanup {
 		return
 	}
-
 	log.Printf("Starting cleanupTask")
 	now := time.Now()
 	c := 0
