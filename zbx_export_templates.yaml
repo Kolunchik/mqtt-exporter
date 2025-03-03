@@ -2636,8 +2636,16 @@ zabbix_export:
                   priority: AVERAGE
                   manual_close: 'YES'
                 - uuid: 042ff4f3a71b442da598f2fa825b8b6d
-                  expression: '(nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=0)'
+                  expression: 'changecount(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=0'
                   name: '{#NAME}: {$N_{#MACRO}:I14} давно не включался'
+                  priority: WARNING
+                  manual_close: 'YES'
+                  tags:
+                    - tag: error
+                      value: nodata
+                - uuid: 3ba472f0b5a346fead57830cc619d4cf
+                  expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  name: '{#NAME}: {$N_{#MACRO}:I14} давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
                   tags:
@@ -5424,8 +5432,16 @@ zabbix_export:
                   priority: WARNING
                   manual_close: 'YES'
                 - uuid: 3f9b08545a1841cb9c67ee99412125e6
-                  expression: '(nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1) or (changecount(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=0)'
+                  expression: 'changecount(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=0'
                   name: '{#NAME}: {$N_{#MACRO}:IN14} давно не включался'
+                  priority: WARNING
+                  manual_close: 'YES'
+                  tags:
+                    - tag: error
+                      value: nodata
+                - uuid: 2611d0caafb548fca7f31ea71c9585f7
+                  expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1'
+                  name: '{#NAME}: {$N_{#MACRO}:IN14} давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
                   tags:
