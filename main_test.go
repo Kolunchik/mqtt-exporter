@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
@@ -486,4 +487,19 @@ func TestMQTTConnectionsCounter(t *testing.T) {
 func TestMQTTConnectedValue(t *testing.T) {
 	c := mqttConnected.Load()
 	assert.Equal(t, c, uint32(0), "Значение mqttConnected должно быть 0")
+}
+
+func TestJSONEncodingError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := &http.Request{}
+	topic := "/test/error/value"
+	payload := math.NaN()
+	metricVal := &metricValue{
+		valueType: "number",
+		updatedAt: time.Now(),
+		number:    payload,
+	}
+	metrics.Store(topic, metricVal)
+	metricsHandler(w, r)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }

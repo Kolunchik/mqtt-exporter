@@ -107,10 +107,14 @@ func main() {
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
+		err := json.NewEncoder(w).Encode(map[string]string{
 			"name":   "mqtt-exporter",
 			"commit": commit,
 		})
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			log.Printf("JSON encode error: %s", err)
+		}
 	})
 
 	log.Printf("Starting mqtt-exporter %s on %s", commit, opts.httpAddr)
@@ -273,6 +277,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(result)
 
 	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		log.Printf("JSON encode error: %s", err)
 	}
 }
@@ -316,7 +321,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"opts": map[string]interface{}{
 			"maxLength": opts.maxLength,
 			"tiny":      opts.tiny,
@@ -331,6 +336,11 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"timestamp": time.Now().Unix(),
 		"metrics":   result,
 	})
+
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("JSON encode error: %s", err)
+	}
 }
 
 func scheduledCleanupTask(ttl time.Duration) {
