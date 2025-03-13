@@ -126,6 +126,9 @@ zabbix_export:
               name: '{$N_MQTT}: Давно не поступали данные о времени работы mqtt-exporter'
               priority: WARNING
               manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики от mqtt-exporter'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
                   value: nodata
@@ -186,6 +189,9 @@ zabbix_export:
               name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
               priority: INFO
               manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики от mqtt-exporter'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
                   value: nodata
