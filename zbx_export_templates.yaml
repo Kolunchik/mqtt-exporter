@@ -41,8 +41,8 @@ zabbix_export:
           triggers:
             - uuid: 8ff2a2302eab48d6b20aef4f640d016e
               expression: 'last(/WB by m-e/exporter[metrics])=0'
-              name: '{$N_MQTT}: Не могу получить метрики от mqtt-exporter'
-              priority: WARNING
+              name: '{$N_MQTT}: Не могу получить метрики'
+              priority: HIGH
               manual_close: 'YES'
               tags:
                 - tag: error
@@ -90,6 +90,7 @@ zabbix_export:
             - uuid: d090a77b8e784918a375d869b16c0b23
               expression: 'last(/WB by m-e/exporter[mqtt_connections_total],#1)-last(/WB by m-e/exporter[mqtt_connections_total],#5)>3'
               name: '{$N_MQTT}: mqtt-exporter слишком часто подключается к брокеру'
+              priority: INFO
               manual_close: 'YES'
               tags:
                 - tag: error
@@ -127,7 +128,7 @@ zabbix_export:
               priority: WARNING
               manual_close: 'YES'
               dependencies:
-                - name: '{$N_MQTT}: Не могу получить метрики от mqtt-exporter'
+                - name: '{$N_MQTT}: Не могу получить метрики'
                   expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
@@ -190,7 +191,7 @@ zabbix_export:
               priority: INFO
               manual_close: 'YES'
               dependencies:
-                - name: '{$N_MQTT}: Не могу получить метрики от mqtt-exporter'
+                - name: '{$N_MQTT}: Не могу получить метрики'
                   expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
@@ -333,6 +334,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -1682,6 +1686,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -2663,6 +2670,9 @@ zabbix_export:
                   name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -3038,6 +3048,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -3925,6 +3938,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -4113,6 +4129,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -4229,6 +4248,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -4514,6 +4536,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -4874,6 +4899,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -5040,6 +5068,9 @@ zabbix_export:
                   name: '{#NAME}: Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -5742,6 +5773,9 @@ zabbix_export:
                   name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
                   priority: WARNING
                   manual_close: 'YES'
+                  dependencies:
+                    - name: '{$N_MQTT}: Не могу получить метрики'
+                      expression: 'last(/WB by m-e/exporter[metrics])=0'
                   tags:
                     - tag: error
                       value: nodata
@@ -5850,7 +5884,7 @@ zabbix_export:
           value: '1000'
           description: 'максимальный уровень CO2'
         - macro: '{$HISTORY}'
-          value: 14d
+          value: 90d
           description: 'хранение истории по умолчанию'
         - macro: '{$HUMID_MAX}'
           value: '62'
@@ -6033,24 +6067,24 @@ zabbix_export:
           name: mqttDryInput
           mappings:
             - value: '0'
-              newvalue: Разомкнут
+              newvalue: разомкнут
             - value: '1'
-              newvalue: Замкнут
+              newvalue: замкнут
         - uuid: a8a6180f7e8946c8950cd580ebc3b0f4
           name: mqttErrors
           mappings:
-            - newvalue: 'Нет ошибок'
+            - newvalue: 'нет ошибок'
             - value: '0'
-              newvalue: 'Нет ошибок'
+              newvalue: 'нет ошибок'
             - value: '1'
-              newvalue: 'Ошибка чтения'
+              newvalue: 'ошибка чтения'
             - value: '2'
-              newvalue: 'Ошибка записи'
+              newvalue: 'ошибка записи'
             - value: '3'
-              newvalue: 'Ошибка чтения/записи'
+              newvalue: 'ошибка чтения/записи'
             - value: r
-              newvalue: 'Ошибка чтения'
+              newvalue: 'ошибка чтения'
             - value: rw
-              newvalue: 'Ошибка чтения/записи'
+              newvalue: 'ошибка чтения/записи'
             - value: w
-              newvalue: 'Ошибка записи'
+              newvalue: 'ошибка записи'
