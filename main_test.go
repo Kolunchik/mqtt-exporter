@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"math"
 	"net/http"
@@ -109,6 +110,17 @@ func TestProcessRegularMetric(t *testing.T) {
 
 	m := val.(*metricValue)
 	assert.Equal(t, 42.5, m.number, "Значение метрики должно быть 42.5")
+
+	topic = "test/topic/NaN"
+	payload = []byte("NaN")
+
+	processRegularMetric(topic, payload, 0)
+
+	val, loaded = metrics.Load(topic)
+	assert.True(t, loaded, "Метрика должна быть загружена")
+
+	m = val.(*metricValue)
+	assert.Equal(t, "NaN", m.text, "Значение метрики должно быть NaN")
 }
 
 func TestProcessRegularMetricMaxLength(t *testing.T) {
@@ -156,9 +168,23 @@ func TestMetricsHandler(t *testing.T) {
 		number:    42.5,
 		updatedAt: time.Now(),
 	})
+	metrics.Store("counters/test/text", &metricValue{
+		valueType: "text",
+		text:      "test text",
+		updatedAt: time.Now(),
+	})
 	metrics.Store("counters/test", &metricValue{
 		valueType: "counter",
 		counter:   10,
+		updatedAt: time.Now(),
+	})
+	metrics.Store("counters/test/binary", &metricValue{
+		valueType: "binary",
+		binary:    []byte("TESTTEST"),
+		updatedAt: time.Now(),
+	})
+	metrics.Store("counters/test/unc", &metricValue{
+		valueType: "unk",
 		updatedAt: time.Now(),
 	})
 
@@ -177,6 +203,10 @@ func TestMetricsHandler(t *testing.T) {
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
+	_, ok := result["counters/test/unc"]
+	assert.False(t, ok, "Ответ НЕ должен содержать метрику counter/test/unc")
+
+	assert.Contains(t, result, "counters/test/binary", "Ответ должен содержать метрику counter/test/binary")
 	assert.Contains(t, result, "timestamp", "Ответ должен содержать метрику timestamp")
 
 	timestampMetric := result["timestamp"]
@@ -199,6 +229,13 @@ func TestMetricsHandler(t *testing.T) {
 	assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
 	assert.Equal(t, "", counterMetric.Binary, "Поле Binary метрики должно быть пустым")
 	assert.Contains(t, counterMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
+
+	textMetric, ok := result["counters/test/text"]
+	assert.True(t, ok, "Метрика 'counters/test/text' должна присутствовать в ответе")
+	assert.Equal(t, "counters/test/text", textMetric.Topic, "Топик метрики должен быть 'counters/test'")
+	assert.Equal(t, "text", textMetric.Type, "Тип метрики должен быть 'text'")
+	assert.Equal(t, "", textMetric.Binary, "Поле Binary метрики должно быть пустым")
+	assert.Contains(t, textMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 }
 
 func TestMetricsHandlerTiny(t *testing.T) {
@@ -338,6 +375,21 @@ func TestMessageHandler(t *testing.T) {
 
 	m := val.(*metricValue)
 	assert.Equal(t, 42.5, m.number, "Значение метрики должно быть 42.5")
+
+	topic = "test/topic/count"
+
+	message = &mockMessage{
+		topic:   topic,
+		payload: []byte("101"),
+	}
+
+	messageHandler(nil, message)
+
+	val, loaded = metrics.Load(topic)
+	assert.True(t, loaded, "Метрика должна быть загружена")
+
+	m = val.(*metricValue)
+	assert.Equal(t, uint64(101), m.counter, "Значение метрики должно быть 101")
 }
 
 func TestMessageHandler_InvalidTopic(t *testing.T) {
@@ -463,6 +515,31 @@ func TestGetMetricValue(t *testing.T) {
 
 	value := getMetricValue(m)
 	assert.Equal(t, 42.5, value, "Значение метрики должно быть 42.5")
+
+	m = &metricValue{
+		valueType: "text",
+		text:      "testtext",
+	}
+
+	value = getMetricValue(m)
+	assert.Equal(t, "testtext", value, "Значение метрики должно быть testtext")
+
+	m = &metricValue{
+		valueType: "counter",
+		counter:   101,
+	}
+
+	value = getMetricValue(m)
+	assert.Equal(t, uint64(101), value, "Значение метрики должно быть 101")
+
+	m = &metricValue{
+		valueType: "binary",
+		binary:    []byte("HAHA"),
+	}
+
+	value = getMetricValue(m)
+	assert.Equal(t, base64.StdEncoding.EncodeToString([]byte("HAHA")), value, "Значение метрики должно быть HAHA")
+
 }
 
 func TestGetMetricValue_InvalidType(t *testing.T) {
@@ -479,16 +556,6 @@ func TestHTTPRequestsValue(t *testing.T) {
 	assert.Equal(t, c, httpRequestsCounter)
 }
 
-func TestMQTTConnectionsCounter(t *testing.T) {
-	c := mqttConnections.Load()
-	assert.Equal(t, c, uint64(0), "Значение mqttConnections должно быть 0")
-}
-
-func TestMQTTConnectedValue(t *testing.T) {
-	c := mqttConnected.Load()
-	assert.Equal(t, c, uint32(0), "Значение mqttConnected должно быть 0")
-}
-
 func TestJSONEncodingError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := &http.Request{}
@@ -502,4 +569,27 @@ func TestJSONEncodingError(t *testing.T) {
 	metrics.Store(topic, metricVal)
 	metricsHandler(w, r)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func TestParseFlags(t *testing.T) {
+	parseFlags()
+}
+
+func TestMCStartErr(t *testing.T) {
+	assert.Nil(t, mqttClient, "mqttClient должен быть nil!")
+	opts.broker = "tcp://localhost:1884"
+	c, err := mcStart()
+	mqttClient = c
+	assert.Error(t, err, "Значение err не должно быть nil!")
+	assert.NotNil(t, mqttClient, "mqttClient не должен быть nil!")
+}
+
+func TestMQTTConnectionsCounter(t *testing.T) {
+	c := mqttConnections.Load()
+	assert.Equal(t, uint64(0), c, "Значение mqttConnections должно быть 0")
+}
+
+func TestMQTTConnectedValue(t *testing.T) {
+	c := mqttConnected.Load()
+	assert.Equal(t, uint32(0), c, "Значение mqttConnected должно быть 0")
 }
