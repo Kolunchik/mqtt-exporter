@@ -12,6 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
 	//"unicode"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -50,6 +51,7 @@ var (
 	httpRequests    atomic.Uint64
 	mqttConnections atomic.Uint64
 	mqttConnected   atomic.Uint32
+	mqttClient      mqtt.Client
 )
 
 var opts struct {
@@ -64,7 +66,7 @@ var opts struct {
 
 var commit = "unknown"
 
-func main() {
+func parseFlags() {
 	flag.StringVar(&opts.httpAddr, "http-addr", "localhost:8080", "HTTP server address")
 	flag.StringVar(&opts.broker, "broker", "tcp://localhost:1883", "MQTT broker address")
 	flag.StringVar(&opts.topic, "topic", "#", "MQTT topic to subscribe")
@@ -73,7 +75,9 @@ func main() {
 	flag.BoolVar(&opts.noCleanup, "no-cleanup", false, "Disable metrics cleanup")
 	flag.BoolVar(&opts.tiny, "tiny", false, "Compact output")
 	flag.Parse()
+}
 
+func mcStart() (mqtt.Client, error) {
 	mo := mqtt.NewClientOptions().AddBroker(opts.broker)
 	mo.SetClientID("mqtt-exporter")
 	mo.SetAutoReconnect(true)
@@ -91,8 +95,17 @@ func main() {
 
 	client := mqtt.NewClient(mo)
 
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal("Connection error:", token.Error())
+	token := client.Connect()
+	token.Wait()
+	return client, token.Error()
+}
+
+func main() {
+	parseFlags()
+	if c, err := mcStart(); err != nil {
+		log.Fatal("Connection error:", err)
+	} else {
+		mqttClient = c
 	}
 
 	if !opts.noCleanup {
