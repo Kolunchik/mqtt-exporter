@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
+	"math"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -77,8 +78,8 @@ func parseFlags() {
 	flag.Parse()
 }
 
-func mcStart() (mqtt.Client, error) {
-	mo := mqtt.NewClientOptions().AddBroker(opts.broker)
+func mcStart(broker, topic string) (mqtt.Client, error) {
+	mo := mqtt.NewClientOptions().AddBroker(broker)
 	mo.SetClientID("mqtt-exporter")
 	mo.SetAutoReconnect(true)
 	mo.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
@@ -88,8 +89,8 @@ func mcStart() (mqtt.Client, error) {
 	mo.SetOnConnectHandler(func(c mqtt.Client) {
 		mqttConnected.Store(1)
 		mqttConnections.Add(1)
-		log.Printf("Connected to %v", opts.broker)
-		c.Subscribe(opts.topic, 0, nil)
+		log.Printf("Connected to %v", broker)
+		c.Subscribe(topic, 0, nil)
 	})
 	mo.SetDefaultPublishHandler(messageHandler)
 
@@ -102,7 +103,7 @@ func mcStart() (mqtt.Client, error) {
 
 func main() {
 	parseFlags()
-	if c, err := mcStart(); err != nil {
+	if c, err := mcStart(opts.broker, opts.topic); err != nil {
 		log.Fatal("Connection error:", err)
 	} else {
 		mqttClient = c
@@ -183,8 +184,11 @@ func processRegularMetric(topic string, payload []byte, maxLength int) {
 	}
 
 	if num, err := strconv.ParseFloat(string(payload), 64); err == nil {
-		if num != num {
-			value = "NaN"
+		if math.IsNaN(num) {
+			value = string(payload)
+			valueType = "text"
+		} else if math.IsInf(num, 0) {
+			value = string(payload)
 			valueType = "text"
 		} else {
 			value = num
