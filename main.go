@@ -116,6 +116,9 @@ func main() {
 
 	http.HandleFunc("/"+APIVersion+"/metrics", metricsHandler)
 	http.HandleFunc("/"+APIVersion+"/health", healthHandler)
+	http.HandleFunc("/"+APIVersion+"/suicide", func(w http.ResponseWriter, r *http.Request) {
+		log.Fatal("kill switch on")
+	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		err := json.NewEncoder(w).Encode(map[string]string{
