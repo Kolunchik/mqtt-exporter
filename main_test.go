@@ -121,6 +121,19 @@ func TestProcessRegularMetric(t *testing.T) {
 
 	m = val.(*metricValue)
 	assert.Equal(t, "NaN", m.text, "Значение метрики должно быть NaN")
+	assert.Equal(t, "text", m.valueType, "Тип метрики должно быть text")
+
+	topic = "test/topic/+Inf"
+	payload = []byte("+Inf")
+
+	processRegularMetric(topic, payload, 0)
+
+	val, loaded = metrics.Load(topic)
+	assert.True(t, loaded, "Метрика должна быть загружена")
+
+	m = val.(*metricValue)
+	assert.Equal(t, "+Inf", m.text, "Значение метрики должно быть +Inf")
+	assert.Equal(t, "text", m.valueType, "Тип метрики должно быть text")
 }
 
 func TestProcessRegularMetricMaxLength(t *testing.T) {
@@ -577,11 +590,10 @@ func TestParseFlags(t *testing.T) {
 
 func TestMCStartErr(t *testing.T) {
 	assert.Nil(t, mqttClient, "mqttClient должен быть nil!")
-	opts.broker = "tcp://localhost:1884"
-	c, err := mcStart()
-	mqttClient = c
+	broker := "tcp://localhost:1884"
+	c, err := mcStart(broker, opts.topic)
 	assert.Error(t, err, "Значение err не должно быть nil!")
-	assert.NotNil(t, mqttClient, "mqttClient не должен быть nil!")
+	assert.NotNil(t, c, "c не должен быть nil!")
 }
 
 func TestMQTTConnectionsCounter(t *testing.T) {
@@ -592,4 +604,32 @@ func TestMQTTConnectionsCounter(t *testing.T) {
 func TestMQTTConnectedValue(t *testing.T) {
 	c := mqttConnected.Load()
 	assert.Equal(t, uint32(0), c, "Значение mqttConnected должно быть 0")
+}
+
+func TestMCStartOK(t *testing.T) {
+	assert.Nil(t, mqttClient, "mqttClient должен быть nil!")
+	broker := "tcp://test.mosquitto.org:1883"
+	c, err := mcStart(broker, commit)
+	assert.Nil(t, err, "Значение err должно быть nil!")
+	assert.NotNil(t, c, "c не должен быть nil!")
+	mqttClient = c
+}
+
+func TestMQTTConnectionsCounterOK(t *testing.T) {
+	c := mqttConnections.Load()
+	assert.Equal(t, uint64(1), c, "Значение mqttConnections должно быть 1")
+}
+
+func TestMQTTConnectedValueOK(t *testing.T) {
+	c := mqttConnected.Load()
+	assert.Equal(t, uint32(1), c, "Значение mqttConnected должно быть 1")
+}
+
+func TestMQTTDisconnect(t *testing.T) {
+	broker := "tcp://test.mosquitto.org:1883"
+	//вызываем ошибку подключения из-за одинакового идентификатора
+	_, _ = mcStart(broker, commit)
+	assert.True(t, mqttClient.IsConnected())
+	mqttClient.Disconnect(30000)
+	assert.False(t, mqttClient.IsConnected())
 }
