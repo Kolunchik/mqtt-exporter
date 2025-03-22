@@ -153,7 +153,7 @@ func isCounter(topic string) bool {
 func processCounter(topic string, payload []byte) {
 	val, err := strconv.ParseFloat(string(payload), 64)
 	if err != nil {
-		log.Printf("Invalid counter value: %s", payload)
+		log.Printf("Topic %v has invalid counter value: %s", topic, payload)
 		return
 	}
 
@@ -176,7 +176,7 @@ func processRegularMetric(topic string, payload []byte, maxLength int) {
 	var valueType string
 
 	if maxLength > 0 && len(payload) > maxLength {
-		log.Printf("Payload length for %q exceeds the set limit", topic)
+		log.Printf("Topic %v payload length exceeds the set limit", topic)
 		return
 	}
 
@@ -212,7 +212,7 @@ func processRegularMetric(topic string, payload []byte, maxLength int) {
 	case []byte:
 		metricVal.binary = v
 	default:
-		log.Printf("Unexpected value type: %T", v)
+		log.Printf("Topic %v has unexpected value type: %T", topic, v)
 		return
 	}
 
@@ -307,6 +307,7 @@ func getMetricValue(m *metricValue) interface{} {
 	case "binary":
 		return base64.StdEncoding.EncodeToString(m.binary)
 	default:
+		log.Printf("Metric has unexpected value type: %v", m.valueType)
 		return nil
 	}
 }

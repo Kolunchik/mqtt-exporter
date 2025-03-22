@@ -626,7 +626,7 @@ func TestMQTTConnectedValueOK(t *testing.T) {
 }
 
 func TestMQTTDisconnect(t *testing.T) {
-	broker := "tcp://test.mosquitto.org:1883"
+	broker := "wss://test.mosquitto.org:8081"
 	//вызываем ошибку подключения из-за одинакового идентификатора
 	_, _ = mcStart(broker, commit)
 	assert.True(t, mqttClient.IsConnected())
