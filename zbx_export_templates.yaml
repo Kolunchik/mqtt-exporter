@@ -46,7 +46,7 @@ zabbix_export:
               manual_close: 'YES'
               tags:
                 - tag: error
-                  value: mqtt-exporter
+                  value: nodata
         - uuid: cb3178df839d4b3885e5e7a28f4a007b
           name: '{$N_MQTT}: mqtt-exporter подключен к MQTT-брокеру'
           type: DEPENDENT
@@ -5934,10 +5934,10 @@ zabbix_export:
           value: '(резерв 10)'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:DR11}'
-          value: 'Сработала сигнализация'
+          value: 'Стоит на охране'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:DR12}'
-          value: '(резерв 12)'
+          value: 'Сработала сигнализация'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:DR13}'
           value: '(резерв 13)'
@@ -5976,10 +5976,10 @@ zabbix_export:
           value: '(резерв 10)'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN11}'
-          value: 'Сработала сигнализация'
+          value: 'Стоит на охране'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN12}'
-          value: '(резерв 12)'
+          value: 'Сработала сигнализация'
           description: 'понятное название входа датчика'
         - macro: '{$N_EXT1:IN13}'
           value: '(резерв 13)'
@@ -6021,10 +6021,10 @@ zabbix_export:
           value: '(резерв 10)'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I11}'
-          value: 'Сработала сигнализация'
+          value: 'Стоит на охране'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I12}'
-          value: '(резерв 12)'
+          value: 'Сработала сигнализация'
           description: 'понятное название входа датчика'
         - macro: '{$N_WB_MCM16_1:I13}'
           value: '(резерв 13)'
