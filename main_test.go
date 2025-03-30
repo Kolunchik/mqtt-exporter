@@ -348,7 +348,7 @@ func TestHealthHandler(t *testing.T) {
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
 	assert.Equal(t, "ok", result["status"], "Статус должен быть 'ok'")
-	assert.Contains(t, result, "metrics", "Ответ должен содержать метрики")
+	assert.Contains(t, result, "metrics", "Ответ должен содержать служебные метрики")
 }
 
 func TestHealthHandler_NoMetrics(t *testing.T) {
@@ -369,7 +369,7 @@ func TestHealthHandler_NoMetrics(t *testing.T) {
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
 	assert.Equal(t, "ok", result["status"], "Статус должен быть 'ok'")
-	assert.Contains(t, result, "metrics", "Ответ должен содержать метрики")
+	assert.Contains(t, result, "metrics", "Ответ должен содержать служебные метрики")
 }
 
 func TestMessageHandler(t *testing.T) {

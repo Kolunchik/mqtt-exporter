@@ -330,13 +330,13 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	metricsLock.RLock()
 	defer metricsLock.RUnlock()
 
-	result := []MetricData{
-		systemMetric("mqtt_connections_total", "counter", float64(mqttConnections.Load())),
-		systemMetric("mqtt_connected", "gauge", float64(mqttConnected.Load())),
-		systemMetric("http_requests_total", "counter", float64(httpRequests.Load())),
-		systemMetric("memory_alloc", "gauge", float64(memStats.Alloc)),
-		systemMetric("memory_total_alloc", "counter", float64(memStats.TotalAlloc)),
-		systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
+	metrics := map[string]interface{}{
+		"mqtt_connections_total": float64(mqttConnections.Load()),
+		"mqtt_connected":         float64(mqttConnected.Load()),
+		"http_requests_total":    float64(httpRequests.Load()),
+		"memory_alloc":           float64(memStats.Alloc),
+		"memory_total_alloc":     float64(memStats.TotalAlloc),
+		"uptime_seconds":         time.Since(startTime).Seconds(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(map[string]interface{}{
@@ -352,7 +352,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"uptime":    time.Since(startTime).String(),
 		"commit":    commit,
 		"timestamp": time.Now().Unix(),
-		"metrics":   result,
+		"metrics":   metrics,
 	})
 
 	if err != nil {

@@ -54,9 +54,14 @@ zabbix_export:
           history: 1d
           trends: '0'
           preprocessing:
+            - type: CHECK_NOT_SUPPORTED
+              parameters:
+                - '-1'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
             - type: JSONPATH
               parameters:
-                - '$.metrics.[?(@.topic==''mqtt_connected'')].value.first()'
+                - $.metrics.mqtt_connected
           master_item:
             key: 'exporter[metrics]'
           tags:
@@ -80,7 +85,7 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - '$.metrics.[?(@.topic==''mqtt_connections_total'')].value.first()'
+                - $.metrics.mqtt_connections_total
           master_item:
             key: 'exporter[metrics]'
           tags:
@@ -105,7 +110,7 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - '$.metrics.[?(@.topic==''uptime_seconds'')].value.first()'
+                - $.metrics.uptime_seconds
           master_item:
             key: 'exporter[metrics]'
           tags:
