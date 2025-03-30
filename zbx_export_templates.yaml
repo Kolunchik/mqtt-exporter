@@ -47,6 +47,16 @@ zabbix_export:
               tags:
                 - tag: error
                   value: nodata
+            - uuid: baadfcdbcf3e409cbfb780d281e99bd5
+              expression: 'jsonpath(last(/WB by m-e/exporter[metrics]),"$.status")<>"ok"'
+              name: '{$N_MQTT}: Статус служебных метрик приуныл'
+              priority: INFO
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+              tags:
+                - tag: error
+                  value: mqtt-exporter
         - uuid: cb3178df839d4b3885e5e7a28f4a007b
           name: '{$N_MQTT}: mqtt-exporter подключен к MQTT-брокеру'
           type: DEPENDENT
@@ -102,6 +112,9 @@ zabbix_export:
               name: '{$N_MQTT}: mqtt-exporter слишком часто подключается к брокеру'
               priority: INFO
               manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
                   value: mqtt-exporter
@@ -115,9 +128,9 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $.metrics.uptime_seconds
+                - $.uptime_seconds.value
           master_item:
-            key: 'exporter[metrics]'
+            key: 'mqtt[metrics]'
           tags:
             - tag: mqtt
               value: mqtt-exporter
@@ -128,6 +141,9 @@ zabbix_export:
               expression: 'change(/WB by m-e/exporter[uptime_seconds])<=0'
               name: '{$N_MQTT}: mqtt-exporter был перезапущен'
               manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
                   value: mqtt-exporter

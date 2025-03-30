@@ -253,10 +253,9 @@ func isBinaryData(data []byte) bool {
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	httpRequests.Add(1)
-	now := time.Now()
-	result := make(map[string]MetricData)
-
-	result["timestamp"] = systemMetric("timestamp", "number", float64(now.Unix()))
+	result := map[string]MetricData{
+		"uptime_seconds": systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
+	}
 
 	metrics.Range(func(k, v interface{}) bool {
 		key := k.(string)
@@ -336,7 +335,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"http_requests_total":    float64(httpRequests.Load()),
 		"memory_alloc":           float64(memStats.Alloc),
 		"memory_total_alloc":     float64(memStats.TotalAlloc),
-		"uptime_seconds":         time.Since(startTime).Seconds(),
+		"uptime":                 time.Since(startTime).String(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(map[string]interface{}{
@@ -349,7 +348,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 			"topic":     opts.topic,
 		},
 		"status":    "ok",
-		"uptime":    time.Since(startTime).String(),
 		"commit":    commit,
 		"timestamp": time.Now().Unix(),
 		"metrics":   metrics,
