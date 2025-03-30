@@ -62,6 +62,8 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.metrics.mqtt_connected
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
           master_item:
             key: 'exporter[metrics]'
           tags:
@@ -73,6 +75,9 @@ zabbix_export:
               name: '{$N_MQTT}: mqtt-exporter не подключен к брокеру'
               priority: AVERAGE
               manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
               tags:
                 - tag: error
                   value: mqtt-exporter
