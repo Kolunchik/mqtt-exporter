@@ -220,11 +220,11 @@ func TestMetricsHandler(t *testing.T) {
 	assert.False(t, ok, "Ответ НЕ должен содержать метрику counter/test/unc")
 
 	assert.Contains(t, result, "counters/test/binary", "Ответ должен содержать метрику counter/test/binary")
-	assert.Contains(t, result, "timestamp", "Ответ должен содержать метрику timestamp")
+	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
-	timestampMetric := result["timestamp"]
-	assert.Equal(t, "timestamp", timestampMetric.Topic, "Топик системной метрики должен быть 'timestamp'")
-	assert.Equal(t, "number", timestampMetric.Type, "Тип системной метрики должен быть 'number'")
+	timestampMetric := result["uptime_seconds"]
+	assert.Equal(t, "uptime_seconds", timestampMetric.Topic, "Топик системной метрики должен быть 'uptime_seconds'")
+	assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
 	assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
 	testTopicMetric, ok := result["test/topic"]
@@ -286,11 +286,11 @@ func TestMetricsHandlerTiny(t *testing.T) {
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
-	assert.Contains(t, result, "timestamp", "Ответ должен содержать метрику timestamp")
+	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
-	timestampMetric := result["timestamp"]
-	assert.Equal(t, "timestamp", timestampMetric.Topic, "Топик системной метрики должен быть 'timestamp'")
-	assert.Equal(t, "number", timestampMetric.Type, "Тип системной метрики должен быть 'number'")
+	timestampMetric := result["uptime_seconds"]
+	assert.Equal(t, "uptime_seconds", timestampMetric.Topic, "Топик системной метрики должен быть 'uptime_seconds'")
+	assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
 	assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
 	testTopicMetric, ok := result["test/topic"]
