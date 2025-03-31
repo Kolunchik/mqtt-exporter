@@ -294,7 +294,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		log.Printf("JSON encode error: %s", err)
+		log.Printf("JSON encode error in metricsHandler: %s", err)
 	}
 }
 
@@ -329,33 +329,32 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	metricsLock.RLock()
 	defer metricsLock.RUnlock()
 
-	metrics := map[string]interface{}{
-		"mqtt_connections_total": float64(mqttConnections.Load()),
-		"mqtt_connected":         float64(mqttConnected.Load()),
-		"http_requests_total":    float64(httpRequests.Load()),
-		"memory_alloc":           float64(memStats.Alloc),
-		"memory_total_alloc":     float64(memStats.TotalAlloc),
-		"uptime":                 time.Since(startTime).String(),
-	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"opts": map[string]interface{}{
-			"maxLength": opts.maxLength,
-			"tiny":      opts.tiny,
-			"ttl":       opts.ttl.String(),
-			"noCleanup": opts.noCleanup,
-			"broker":    opts.broker,
-			"topic":     opts.topic,
+			"max-length": opts.maxLength,
+			"tiny":       opts.tiny,
+			"ttl":        opts.ttl.String(),
+			"no-cleanup": opts.noCleanup,
+			"broker":     opts.broker,
+			"topic":      opts.topic,
+		},
+		"metrics": map[string]interface{}{
+			"mqtt_connections_total": float64(mqttConnections.Load()),
+			"mqtt_connected":         float64(mqttConnected.Load()),
+			"http_requests_total":    float64(httpRequests.Load()),
+			"memory_alloc":           float64(memStats.Alloc),
+			"memory_total_alloc":     float64(memStats.TotalAlloc),
+			"uptime":                 time.Since(startTime).String(),
 		},
 		"status":    "ok",
 		"commit":    commit,
 		"timestamp": time.Now().Unix(),
-		"metrics":   metrics,
 	})
 
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		log.Printf("JSON encode error: %s", err)
+		log.Printf("JSON encode error in healthHandler: %s", err)
 	}
 }
 

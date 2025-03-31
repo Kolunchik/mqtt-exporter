@@ -14,6 +14,24 @@ zabbix_export:
       groups:
         - name: 'Templates/Network devices'
       items:
+        - uuid: 9a4942b261d64f439ef6f14ad3877423
+          name: '{$N_MQTT}: Коммит (версия) mqtt-exporter'
+          type: DEPENDENT
+          key: 'exporter[commit]'
+          history: 1d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.commit
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: 'exporter[metrics]'
+          tags:
+            - tag: mqtt
+              value: mqtt-exporter
         - uuid: 72d62928c7c6448ca96c0ed81b400f87
           name: '{$N_MQTT}: Служебные метрики mqtt-exporter'
           type: HTTP_AGENT
@@ -63,6 +81,8 @@ zabbix_export:
           key: 'exporter[mqtt_connected]'
           history: 1d
           trends: '0'
+          valuemap:
+            name: mqttСonnected
           preprocessing:
             - type: CHECK_NOT_SUPPORTED
               parameters:
@@ -123,7 +143,7 @@ zabbix_export:
           type: DEPENDENT
           key: 'exporter[uptime_seconds]'
           history: '{$HISTORY}'
-          trends: '{$TRENDS}'
+          trends: '0'
           units: uptime
           preprocessing:
             - type: JSONPATH
@@ -159,6 +179,17 @@ zabbix_export:
               tags:
                 - tag: error
                   value: nodata
+            - uuid: d1b4b950b15649f6b0798853f1eb25f7
+              expression: 'change(/WB by m-e/exporter[uptime_seconds])=0'
+              name: '{$N_MQTT}: Значение uptime_seconds не изменилось'
+              priority: INFO
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+              tags:
+                - tag: error
+                  value: mqtt-exporter
         - uuid: 03779a72f67742ecb41771e15c52e842
           name: '{$N_MQTT}: Метрики mqtt'
           type: HTTP_AGENT
@@ -185,7 +216,7 @@ zabbix_export:
           key: 'mqtt[system/Vin]'
           history: '{$HISTORY}'
           value_type: FLOAT
-          trends: '{$TRENDS}'
+          trends: '0'
           units: V
           preprocessing:
             - type: JSONPATH
@@ -6114,3 +6145,10 @@ zabbix_export:
               newvalue: 'ошибка чтения/записи'
             - value: w
               newvalue: 'ошибка записи'
+        - uuid: 7186fb76ed024d0b89a13e14802744c8
+          name: mqttСonnected
+          mappings:
+            - value: '0'
+              newvalue: 'нет подключения'
+            - value: '1'
+              newvalue: подключен
