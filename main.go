@@ -222,7 +222,7 @@ func processRegularMetric(topic string, payload []byte, maxLength int) {
 	metrics.Store(topic, metricVal)
 }
 
-func isBinaryData(data []byte) bool {
+func isBinaryData(_ []byte) bool {
 	/*
 		const maxTextCheck = 512
 		checkLength := len(data)
@@ -387,6 +387,7 @@ func scheduledCollectMemoryStats() {
 		collectMemoryStats()
 	}
 }
+
 func collectMemoryStats() {
 	runtime.ReadMemStats(&memStats)
 }
