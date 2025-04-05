@@ -36,7 +36,7 @@ zabbix_export:
           name: '{$N_MQTT}: Служебные метрики mqtt-exporter'
           type: HTTP_AGENT
           key: 'exporter[metrics]'
-          delay: 30s
+          delay: 37s
           history: 1d
           value_type: TEXT
           preprocessing:
@@ -58,24 +58,25 @@ zabbix_export:
             - tag: type
               value: master
           triggers:
+            - uuid: baadfcdbcf3e409cbfb780d281e99bd5
+              expression: 'jsonpath(last(/WB by m-e/exporter[metrics]),"$.status")<>"ok"'
+              name: '{$N_MQTT}: mqtt-exporter приуныл'
+              priority: INFO
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: mqtt-exporter
             - uuid: 8ff2a2302eab48d6b20aef4f640d016e
-              expression: 'last(/WB by m-e/exporter[metrics])=0'
+              expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
               name: '{$N_MQTT}: Не могу получить метрики'
               priority: HIGH
               manual_close: 'YES'
               tags:
                 - tag: error
                   value: nodata
-            - uuid: baadfcdbcf3e409cbfb780d281e99bd5
-              expression: 'jsonpath(last(/WB by m-e/exporter[metrics]),"$.status")<>"ok"'
-              name: '{$N_MQTT}: Статус служебных метрик приуныл'
-              priority: INFO
-              dependencies:
-                - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
-              tags:
-                - tag: error
-                  value: mqtt-exporter
         - uuid: cb3178df839d4b3885e5e7a28f4a007b
           name: '{$N_MQTT}: mqtt-exporter подключен к MQTT-брокеру'
           type: DEPENDENT
@@ -85,16 +86,9 @@ zabbix_export:
           valuemap:
             name: mqttСonnected
           preprocessing:
-            - type: CHECK_NOT_SUPPORTED
-              parameters:
-                - '-1'
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '0'
             - type: JSONPATH
               parameters:
                 - $.metrics.mqtt_connected
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '0'
           master_item:
             key: 'exporter[metrics]'
           tags:
@@ -104,11 +98,11 @@ zabbix_export:
             - uuid: 77765db33a80437da35fde90fe76c3f5
               expression: 'last(/WB by m-e/exporter[mqtt_connected])<>1'
               name: '{$N_MQTT}: mqtt-exporter не подключен к брокеру'
-              priority: AVERAGE
+              priority: HIGH
               manual_close: 'YES'
               dependencies:
                 - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
               tags:
                 - tag: error
                   value: mqtt-exporter
@@ -131,11 +125,11 @@ zabbix_export:
             - uuid: d090a77b8e784918a375d869b16c0b23
               expression: 'last(/WB by m-e/exporter[mqtt_connections_total],#1)-last(/WB by m-e/exporter[mqtt_connections_total],#5)>3'
               name: '{$N_MQTT}: mqtt-exporter слишком часто подключается к брокеру'
-              priority: INFO
+              priority: WARNING
               manual_close: 'YES'
               dependencies:
                 - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
               tags:
                 - tag: error
                   value: mqtt-exporter
@@ -164,33 +158,22 @@ zabbix_export:
               manual_close: 'YES'
               dependencies:
                 - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
               tags:
                 - tag: error
                   value: mqtt-exporter
                 - tag: muted
             - uuid: 27a4950a52404f8e82798379107ab432
-              expression: 'nodata(/WB by m-e/exporter[uptime_seconds],{$CHECK_NODATA})=1'
+              expression: 'nodata(/WB by m-e/exporter[uptime_seconds],{$CHECK_NODATA})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
               name: '{$N_MQTT}: Давно не поступали данные о времени работы mqtt-exporter'
               priority: WARNING
               manual_close: 'YES'
               dependencies:
                 - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
               tags:
                 - tag: error
                   value: nodata
-            - uuid: d1b4b950b15649f6b0798853f1eb25f7
-              expression: 'change(/WB by m-e/exporter[uptime_seconds])=0'
-              name: '{$N_MQTT}: Значение uptime_seconds не изменилось'
-              priority: INFO
-              manual_close: 'YES'
-              dependencies:
-                - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
-              tags:
-                - tag: error
-                  value: mqtt-exporter
         - uuid: 03779a72f67742ecb41771e15c52e842
           name: '{$N_MQTT}: Метрики mqtt'
           type: HTTP_AGENT
@@ -243,17 +226,6 @@ zabbix_export:
               tags:
                 - tag: error
                   value: Vin
-            - uuid: 135703afe0f44999ab344e0cd47feca1
-              expression: 'nodata(/WB by m-e/mqtt[system/Vin],{$CHECK_NODATA})=1'
-              name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
-              priority: INFO
-              manual_close: 'YES'
-              dependencies:
-                - name: '{$N_MQTT}: Не могу получить метрики'
-                  expression: 'last(/WB by m-e/exporter[metrics])=0'
-              tags:
-                - tag: error
-                  value: nodata
             - uuid: cf826c3e9228472081f387c3882984fa
               expression: 'avg(/WB by m-e/mqtt[system/Vin],{$CHECK_INTERVAL})<{$VOLTAGE_MIN}'
               recovery_mode: RECOVERY_EXPRESSION
@@ -263,7 +235,7 @@ zabbix_export:
               manual_close: 'YES'
               dependencies:
                 - name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
-                  expression: 'nodata(/WB by m-e/mqtt[system/Vin],{$CHECK_NODATA})=1'
+                  expression: 'nodata(/WB by m-e/mqtt[system/Vin],{$CHECK_NODATA})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
               tags:
                 - tag: error
                   value: Vin
@@ -389,17 +361,6 @@ zabbix_export:
                 - tag: type
                   value: env
               trigger_prototypes:
-                - uuid: 367f84a199044a8782611004980d757d
-                  expression: 'nodata(/WB by m-e/msu24hit[{#DEVICE}/Temp],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
                 - uuid: 6ec99087fa6d49e885a1a869869aaa63
                   expression: 'avg(/WB by m-e/msu24hit[{#DEVICE}/Temp],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
@@ -420,6 +381,18 @@ zabbix_export:
                   tags:
                     - tag: temp
                       value: low
+          trigger_prototypes:
+            - uuid: 367f84a199044a8782611004980d757d
+              expression: 'nodata(/WB by m-e/msu24hit[{#DEVICE}/Temp],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -1740,18 +1713,6 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
-              trigger_prototypes:
-                - uuid: 933100e4ddef4a7ba7d9f64d5af7ea9a
-                  expression: 'nodata(/WB by m-e/wb-map3e[{#DEVICE}/Urms L1],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
             - uuid: 98cdae5aed21492db13c0fb5ff9a0d01
               name: '{#NAME}: Напряжение (RMS) на фазе L2'
               type: DEPENDENT
@@ -1863,6 +1824,18 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
+          trigger_prototypes:
+            - uuid: 933100e4ddef4a7ba7d9f64d5af7ea9a
+              expression: 'nodata(/WB by m-e/wb-map3e[{#DEVICE}/Urms L1],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2721,18 +2694,7 @@ zabbix_export:
                   manual_close: 'YES'
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
-                      expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  tags:
-                    - tag: error
-                      value: nodata
-                - uuid: 3ba472f0b5a346fead57830cc619d4cf
-                  expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
+                      expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
                   tags:
                     - tag: error
                       value: nodata
@@ -2788,6 +2750,18 @@ zabbix_export:
                   name: '{#NAME}: {$N_{#MACRO}:I16}'
                   priority: AVERAGE
                   manual_close: 'YES'
+          trigger_prototypes:
+            - uuid: 3ba472f0b5a346fead57830cc619d4cf
+              expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -3102,18 +3076,18 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
-              trigger_prototypes:
-                - uuid: 930b7027fd7445d6a769a442632c8add
-                  expression: 'nodata(/WB by m-e/wb-mr3[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
+          trigger_prototypes:
+            - uuid: 930b7027fd7445d6a769a442632c8add
+              expression: 'nodata(/WB by m-e/wb-mr3[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -3992,18 +3966,18 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
-              trigger_prototypes:
-                - uuid: 60786e4d19854a42ade1f1fde4f43513
-                  expression: 'nodata(/WB by m-e/wb-mr11[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
+          trigger_prototypes:
+            - uuid: 60786e4d19854a42ade1f1fde4f43513
+              expression: 'nodata(/WB by m-e/wb-mr11[{#DEVICE}/Supply Voltage],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -4183,18 +4157,18 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: light
-              trigger_prototypes:
-                - uuid: 9aa71a2b655f4fa2b488e230e5acadc9
-                  expression: 'nodata(/WB by m-e/wb-mrgb[{#DEVICE}/RGB],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
+          trigger_prototypes:
+            - uuid: 9aa71a2b655f4fa2b488e230e5acadc9
+              expression: 'nodata(/WB by m-e/wb-mrgb[{#DEVICE}/RGB],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -4303,17 +4277,6 @@ zabbix_export:
                   name: '{#NAME}: {$N_{#MACRO}:B1}'
                   priority: AVERAGE
                   manual_close: 'YES'
-                - uuid: fc184c47deb445649ba3a1d397c0550d
-                  expression: 'nodata(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
             - uuid: 2ede9097efa447dfbc260d4145dad29b
               name: '{#NAME}: {$N_{#MACRO}:B2} (счетчик)'
               type: DEPENDENT
@@ -4407,6 +4370,18 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
+          trigger_prototypes:
+            - uuid: fc184c47deb445649ba3a1d397c0550d
+              expression: 'nodata(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -4590,18 +4565,6 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
-              trigger_prototypes:
-                - uuid: a0c9d6cda04b464a8e9e25d270759c0e
-                  expression: 'nodata(/WB by m-e/wb-ms-thls[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
             - uuid: f028c2252c7f4a43b079ab1d02df7d82
               name: '{#NAME}: Уровень шума'
               type: DEPENDENT
@@ -4716,6 +4679,18 @@ zabbix_export:
                   tags:
                     - tag: temp
                       value: low
+          trigger_prototypes:
+            - uuid: a0c9d6cda04b464a8e9e25d270759c0e
+              expression: 'nodata(/WB by m-e/wb-ms-thls[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -4953,18 +4928,6 @@ zabbix_export:
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
-              trigger_prototypes:
-                - uuid: 187177a8a9024f21b194553c4e93ec8d
-                  expression: 'nodata(/WB by m-e/wb-msw2[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
             - uuid: 07bf3e0ec43d4b20a8c95c0804ba1c79
               name: '{#NAME}: Уровень шума'
               type: DEPENDENT
@@ -5079,6 +5042,18 @@ zabbix_export:
                   tags:
                     - tag: temp
                       value: low
+          trigger_prototypes:
+            - uuid: 187177a8a9024f21b194553c4e93ec8d
+              expression: 'nodata(/WB by m-e/wb-msw2[{#DEVICE}/Input Voltage],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -5123,17 +5098,6 @@ zabbix_export:
                 - tag: type
                   value: env
               trigger_prototypes:
-                - uuid: dde549d8ac70425eb89357d0c78de9e9
-                  expression: 'nodata(/WB by m-e/wb-w1[{#DEVICE}],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
-                  tags:
-                    - tag: error
-                      value: nodata
                 - uuid: 35b3871a99954fe8abcf158545c70b9d
                   expression: 'avg(/WB by m-e/wb-w1[{#DEVICE}],{$CHECK_INTERVAL})>{$TEMP_MAX:"{#MACRO}"}'
                   recovery_mode: RECOVERY_EXPRESSION
@@ -5154,6 +5118,18 @@ zabbix_export:
                   tags:
                     - tag: temp
                       value: low
+          trigger_prototypes:
+            - uuid: dde549d8ac70425eb89357d0c78de9e9
+              expression: 'nodata(/WB by m-e/wb-w1[{#DEVICE}],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -5824,18 +5800,7 @@ zabbix_export:
                   manual_close: 'YES'
                   dependencies:
                     - name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
-                      expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  tags:
-                    - tag: error
-                      value: nodata
-                - uuid: 2611d0caafb548fca7f31ea71c9585f7
-                  expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
-                  priority: WARNING
-                  manual_close: 'YES'
-                  dependencies:
-                    - name: '{$N_MQTT}: Не могу получить метрики'
-                      expression: 'last(/WB by m-e/exporter[metrics])=0'
+                      expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
                   tags:
                     - tag: error
                       value: nodata
@@ -5938,6 +5903,17 @@ zabbix_export:
               dependencies:
                 - name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}'
                   expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14])=1'
+            - uuid: 2611d0caafb548fca7f31ea71c9585f7
+              expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14],{$CHECK_NODATA:"{#MACRO}"})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+              name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: '{$N_MQTT}: Не могу получить метрики'
+                  expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+              tags:
+                - tag: error
+                  value: nodata
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -6182,3 +6158,15 @@ zabbix_export:
               newvalue: 'нет подключения'
             - value: '1'
               newvalue: подключен
+  triggers:
+    - uuid: 135703afe0f44999ab344e0cd47feca1
+      expression: 'nodata(/WB by m-e/mqtt[system/Vin],{$CHECK_NODATA})=1 and last(/WB by m-e/exporter[uptime_seconds])>{$MIN_UPTIME}'
+      name: '{$N_MQTT}: Давно не поступали данные о напряжении питания контроллера'
+      priority: INFO
+      manual_close: 'YES'
+      dependencies:
+        - name: '{$N_MQTT}: Не могу получить метрики'
+          expression: 'last(/WB by m-e/exporter[metrics])=0 and changecount(/WB by m-e/exporter[metrics],#3)=0'
+      tags:
+        - tag: error
+          value: nodata
