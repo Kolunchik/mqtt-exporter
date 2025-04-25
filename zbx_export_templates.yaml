@@ -30,7 +30,7 @@ zabbix_export:
           master_item:
             key: 'exporter[metrics]'
           tags:
-            - tag: mqtt
+            - tag: device
               value: mqtt-exporter
         - uuid: 72d62928c7c6448ca96c0ed81b400f87
           name: '{$N_MQTT}: Служебные метрики mqtt-exporter'
@@ -46,8 +46,6 @@ zabbix_export:
           url: '{$M_URL}/health'
           output_format: JSON
           tags:
-            - tag: mqtt
-              value: mqtt-exporter
             - tag: type
               value: master
           triggers:
@@ -77,7 +75,7 @@ zabbix_export:
           master_item:
             key: 'exporter[metrics]'
           tags:
-            - tag: mqtt
+            - tag: device
               value: mqtt-exporter
           triggers:
             - uuid: 77765db33a80437da35fde90fe76c3f5
@@ -104,7 +102,7 @@ zabbix_export:
           master_item:
             key: 'exporter[metrics]'
           tags:
-            - tag: mqtt
+            - tag: device
               value: mqtt-exporter
           triggers:
             - uuid: d090a77b8e784918a375d869b16c0b23
@@ -132,7 +130,7 @@ zabbix_export:
           master_item:
             key: 'exporter[metrics]'
           tags:
-            - tag: mqtt
+            - tag: device
               value: mqtt-exporter
             - tag: type
               value: time
@@ -156,8 +154,6 @@ zabbix_export:
           url: '{$M_URL}/metrics'
           output_format: JSON
           tags:
-            - tag: mqtt
-              value: system
             - tag: type
               value: master
           triggers:
@@ -187,8 +183,8 @@ zabbix_export:
           master_item:
             key: 'mqtt[metrics]'
           tags:
-            - tag: mqtt
-              value: system
+            - tag: device
+              value: wb-adc
             - tag: type
               value: Vin
           triggers:
@@ -244,7 +240,7 @@ zabbix_export:
           master_item:
             key: 'mqtt[metrics]'
           tags:
-            - tag: mqtt
+            - tag: device
               value: mqtt-exporter
             - tag: type
               value: uptime
@@ -257,10 +253,6 @@ zabbix_export:
               dependencies:
                 - name: '{$N_MQTT}: Не удаётся получить данные'
                   expression: 'last(/WB by m-e/mqtt[metrics])=0 and changecount(/WB by m-e/mqtt[metrics],#3)=0'
-              tags:
-                - tag: error
-                  value: mqtt-exporter
-                - tag: muted
             - uuid: 27a4950a52404f8e82798379107ab432
               expression: 'nodata(/WB by m-e/mqtt[uptime_seconds],{$CHECK_NODATA})=1'
               name: '{$N_MQTT}: Давно не поступали данные о времени работы mqtt-exporter'
@@ -300,7 +292,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -330,7 +322,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -360,7 +352,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -390,7 +382,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -448,10 +440,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: a85d1691d00b4111a57457d48cd55ef3
@@ -470,10 +462,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: e755006e835549ccaf58f8118a638baa
@@ -492,9 +484,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 8e26e412de744e5b81c3a31a9fb3e4d7
@@ -513,10 +505,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 2ac8ae9fa77f4fbd91f9e62f2cc17dd9
@@ -535,10 +527,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 4c25022b313e43a188a07cd228436442
@@ -557,9 +549,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: aea209ecfca643d08b04f9ee95fa4014
@@ -578,7 +570,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -598,10 +590,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 1e812e4ebeba48e1bd8fe6b456a03161
@@ -620,10 +612,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: b9f9f5e58e634071b00d256ce27a7156
@@ -642,9 +634,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: f8dd525ac7b4405490a347a998ec45ff
@@ -663,10 +655,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 391d11dba1b04096b075de9fb3f632b5
@@ -685,10 +677,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 31ebcddf22964d93a2532e32e330cee0
@@ -707,10 +699,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '3'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 56d2562228df40598b3f3c08e3d8ad1e
@@ -729,10 +721,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 5b276bd0d860467db5e658a34794fd4d
@@ -751,10 +743,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 783f43cc052a4f7494ca5319e5b8cf3a
@@ -773,9 +765,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 7b694b7a7d9b4df3bbcc4d3966a78e80
@@ -794,10 +786,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 3aa946a5bb53440a9bc3c35408ce7218
@@ -816,10 +808,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: b83463d2a5ca4a03a2db7eec4f1996b9
@@ -838,9 +830,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 3a4224b895ea4199bef53c6712384fb2
@@ -859,10 +851,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: cb872e37870a492f931600097881711a
@@ -881,10 +873,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 35fbf205a1f645658f303449423f37f2
@@ -903,9 +895,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 120fd6c70ced4c07977c83bb2d77307f
@@ -923,10 +915,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: cbcb7ef194ff4733a0c29c79793819d4
@@ -944,10 +936,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: ab85d438f53c43b48467cb4e3829b246
@@ -965,9 +957,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: d9cd875788c44727a7d2506866ceb899
@@ -986,10 +978,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 9edbcf9f60904797be581dfd64cc2326
@@ -1008,10 +1000,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: a26dcae455f3412c8c9cc930c62aa0ce
@@ -1030,10 +1022,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '3'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: de690d226bc141b798b6d48578168051
@@ -1052,10 +1044,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 8a068205b9da4873b441d4a191ecef58
@@ -1074,10 +1066,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 54f20a0abc7042aa903e522ee25ae1b8
@@ -1096,9 +1088,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 52520461291140a9a2ce5518de2fd2da
@@ -1117,10 +1109,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 097581f09ed042739640a9080dd24d88
@@ -1139,10 +1131,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: fbbe6b6776ee4f07b8dca2fed73dca8b
@@ -1161,9 +1153,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 58676f20b8fa454b8b2a6142ce44c071
@@ -1182,10 +1174,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 5a9e214489e64bcb99ba4a3b38dd795c
@@ -1204,10 +1196,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 5bb6e713b6ff495fbd98ac86faaaf511
@@ -1226,9 +1218,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: 797929be5e7c49bf9cf245317c530718
@@ -1247,10 +1239,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: aa1cbc0767f74cc691e74ecfb6414e91
@@ -1269,10 +1261,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 7542ebe304b4446ebd327a0e84af9e6e
@@ -1291,9 +1283,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: b98129a129954abba0c4eb1da39ff3a4
@@ -1312,10 +1304,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: d399d80dd3e045598fa31aa46d28fcd8
@@ -1334,10 +1326,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 36a8157549cc4d87871a58e322e0b13c
@@ -1356,9 +1348,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: f500f1090aa14cf5962001e6ca90d95b
@@ -1377,7 +1369,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1397,7 +1389,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1417,7 +1409,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1436,7 +1428,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1456,7 +1448,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1476,7 +1468,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1496,7 +1488,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1516,7 +1508,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1536,7 +1528,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: electricity
@@ -1556,12 +1548,12 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 416368a47ce848af8a40267bbfbe546d
@@ -1580,11 +1572,11 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
                 - tag: L3
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 73a21c8824b34dbb88e25857484257c9
@@ -1603,11 +1595,11 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
                 - tag: L3
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 959a24f15a4248faac7dd3b51e979871
@@ -1626,10 +1618,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 396bae22dc6e47ecac1ace72e8a7d259
@@ -1648,10 +1640,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 70ae9761916a4843b5fbaf5b27677541
@@ -1670,9 +1662,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: e169bc14b53e40d183184340d1e4d27b
@@ -1701,7 +1693,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -1727,10 +1719,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
               trigger_prototypes:
@@ -1761,10 +1753,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: 963c345b76c64603984a1e31607afb54
@@ -1783,9 +1775,9 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: L3
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
+                - tag: L3
                 - tag: type
                   value: electricity
             - uuid: e2811075977941f7be3a834127abf8ef
@@ -1804,10 +1796,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: a589f461a42b43859240c20b853ecfb1
@@ -1826,10 +1818,10 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '2'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
             - uuid: fbc45e0ed4454a4fa8cd887567ca59ed
@@ -1848,12 +1840,12 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
+                - tag: device
+                  value: '{#DEVICE}'
                 - tag: L
                   value: '1'
                 - tag: L
                   value: '3'
-                - tag: mqtt
-                  value: '{#DEVICE}'
                 - tag: type
                   value: electricity
         - uuid: 5a67c20e968749648d3791e2de85f7d6
@@ -1876,7 +1868,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -1903,7 +1895,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -1930,7 +1922,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -1957,7 +1949,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -1984,7 +1976,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2011,7 +2003,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2038,7 +2030,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2065,7 +2057,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2092,7 +2084,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2119,7 +2111,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2146,7 +2138,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2173,7 +2165,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2200,7 +2192,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2239,7 +2231,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -2263,7 +2255,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2279,11 +2271,11 @@ zabbix_export:
                       expression: 'last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14])=1'
                 - uuid: 2c53e4adcefc4f75b85c8ca964141956
                   expression: 'changecount(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 14],{$CHECK_NODATA:"{#MACRO}"})=0'
-                  name: '{#NAME}: {$N_{#MACRO}:I14} Давно не изменялось значение'
+                  name: '{#NAME}: {$N_{#MACRO}:I14}: Давно не изменялось значение счётчика'
                   priority: INFO
                   manual_close: 'YES'
                   dependencies:
-                    - name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
+                    - name: '{#NAME}: {$N_{#MACRO}:I14}: Давно не поступали данные'
                       expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
                   tags:
                     - tag: error
@@ -2302,7 +2294,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2329,7 +2321,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2358,7 +2350,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2384,7 +2376,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2410,7 +2402,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2436,7 +2428,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2462,7 +2454,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2488,7 +2480,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2514,7 +2506,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2540,7 +2532,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2566,7 +2558,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2592,7 +2584,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2618,7 +2610,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2644,7 +2636,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2670,7 +2662,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2696,7 +2688,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2709,18 +2701,18 @@ zabbix_export:
                   manual_close: 'YES'
                 - uuid: 042ff4f3a71b442da598f2fa825b8b6d
                   expression: 'changecount(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=0'
-                  name: '{#NAME}: {$N_{#MACRO}:I14} Давно не включался'
+                  name: '{#NAME}: {$N_{#MACRO}:I14}: Давно не включался'
                   priority: INFO
                   manual_close: 'YES'
                   dependencies:
-                    - name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
+                    - name: '{#NAME}: {$N_{#MACRO}:I14}: Давно не поступали данные'
                       expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
                   tags:
                     - tag: error
                       value: nodata
                 - uuid: 3ba472f0b5a346fead57830cc619d4cf
                   expression: 'nodata(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: {$N_{#MACRO}:I14} Давно не поступали данные'
+                  name: '{#NAME}: {$N_{#MACRO}:I14}: Давно не поступали данные'
                   priority: INFO
                   manual_close: 'YES'
                   dependencies:
@@ -2745,7 +2737,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2771,7 +2763,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2803,7 +2795,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2821,7 +2813,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2860,7 +2852,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -2886,7 +2878,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2910,7 +2902,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2939,7 +2931,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -2963,7 +2955,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -2992,7 +2984,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3018,7 +3010,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3038,7 +3030,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3058,7 +3050,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3078,7 +3070,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
@@ -3133,7 +3125,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -3157,7 +3149,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3186,7 +3178,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3210,7 +3202,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3239,7 +3231,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3263,7 +3255,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3292,7 +3284,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3316,7 +3308,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3345,7 +3337,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3369,7 +3361,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3398,7 +3390,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3422,7 +3414,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3451,7 +3443,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3475,7 +3467,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3504,7 +3496,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3528,7 +3520,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3557,7 +3549,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3581,7 +3573,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3610,7 +3602,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3634,7 +3626,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3663,7 +3655,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3687,7 +3679,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -3716,7 +3708,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -3742,7 +3734,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3762,7 +3754,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3782,7 +3774,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3802,7 +3794,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3822,7 +3814,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3842,7 +3834,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3862,7 +3854,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3882,7 +3874,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3902,7 +3894,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3922,7 +3914,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3942,7 +3934,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -3962,7 +3954,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
@@ -4005,7 +3997,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -4034,7 +4026,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -4058,7 +4050,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -4087,7 +4079,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -4123,7 +4115,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -4147,7 +4139,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: light
@@ -4183,7 +4175,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -4222,7 +4214,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -4248,7 +4240,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -4283,7 +4275,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: counter
@@ -4312,7 +4304,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -4338,7 +4330,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -4358,7 +4350,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: relay
@@ -4388,7 +4380,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4433,7 +4425,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4478,7 +4470,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4508,7 +4500,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4528,7 +4520,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
@@ -4571,7 +4563,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4610,7 +4602,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -4640,7 +4632,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4685,7 +4677,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: buzzer
@@ -4712,7 +4704,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4745,7 +4737,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4790,7 +4782,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4835,7 +4827,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4865,7 +4857,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4885,7 +4877,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: Vin
@@ -4928,7 +4920,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -4967,7 +4959,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: error
@@ -4997,7 +4989,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -5048,7 +5040,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: env
@@ -5104,7 +5096,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5130,7 +5122,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5148,7 +5140,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5174,7 +5166,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5192,7 +5184,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5218,7 +5210,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5236,7 +5228,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5262,7 +5254,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5280,7 +5272,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5306,7 +5298,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5324,7 +5316,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5350,7 +5342,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5368,7 +5360,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5394,7 +5386,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5412,7 +5404,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5438,7 +5430,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5456,7 +5448,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5482,7 +5474,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5500,7 +5492,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5526,7 +5518,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5544,7 +5536,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5570,7 +5562,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5588,7 +5580,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5614,7 +5606,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5632,7 +5624,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5658,7 +5650,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5676,7 +5668,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5689,18 +5681,18 @@ zabbix_export:
                   manual_close: 'YES'
                 - uuid: 3f9b08545a1841cb9c67ee99412125e6
                   expression: 'changecount(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/obj],{$CHECK_NODATA:"{#MACRO}"})=0'
-                  name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не включался'
+                  name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}: Давно не включался'
                   priority: INFO
                   manual_close: 'YES'
                   dependencies:
-                    - name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
+                    - name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}: Давно не поступали данные'
                       expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/obj],{$CHECK_NODATA:"{#MACRO}"})=1'
                   tags:
                     - tag: error
                       value: nodata
                 - uuid: 2611d0caafb548fca7f31ea71c9585f7
                   expression: 'nodata(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/obj],{$CHECK_NODATA:"{#MACRO}"})=1'
-                  name: '{#NAME}: {$N_{#MACRO}:{#PREF}14} Давно не поступали данные'
+                  name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}: Давно не поступали данные'
                   priority: INFO
                   manual_close: 'YES'
                   dependencies:
@@ -5725,7 +5717,7 @@ zabbix_export:
               master_item:
                 key: 'mqtt[metrics]'
               tags:
-                - tag: mqtt
+                - tag: device
                   value: '{#DEVICE}'
                 - tag: type
                   value: dry
@@ -5857,9 +5849,6 @@ zabbix_export:
               dependencies:
                 - name: '{#NAME}: {$N_{#MACRO}:{#PREF}14}'
                   expression: 'jsonpath(last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/obj],#1),"$.value")=1'
-      tags:
-        - tag: mqtt
-          value: '{$N_MQTT}'
       macros:
         - macro: '{$CHECK_INTERVAL}'
           value: 30m
