@@ -343,7 +343,7 @@ func TestHealthHandler(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
@@ -364,7 +364,7 @@ func TestHealthHandler_NoMetrics(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 

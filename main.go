@@ -26,12 +26,12 @@ const (
 )
 
 type MetricData struct {
-	Topic     string      `json:"topic,omitempty"`
-	Type      string      `json:"type,omitempty"`
-	Value     interface{} `json:"value,omitempty"`
-	Binary    string      `json:"binary,omitempty"`
-	Timestamp int64       `json:"ts"`
-	RFC3339   string      `json:"rfc3339,omitempty"`
+	Topic     string `json:"topic,omitempty"`
+	Type      string `json:"type,omitempty"`
+	Value     any    `json:"value,omitempty"`
+	Binary    string `json:"binary,omitempty"`
+	Timestamp int64  `json:"ts"`
+	RFC3339   string `json:"rfc3339,omitempty"`
 }
 
 type metricValue struct {
@@ -175,7 +175,7 @@ func processCounter(topic string, payload []byte) {
 }
 
 func processRegularMetric(topic string, payload []byte, maxLength int) {
-	var value interface{}
+	var value any
 	var valueType string
 
 	if maxLength > 0 && len(payload) > maxLength {
@@ -257,7 +257,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 		"uptime_seconds": systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
 	}
 
-	metrics.Range(func(k, v interface{}) bool {
+	metrics.Range(func(k, v any) bool {
 		key := k.(string)
 		m := v.(*metricValue)
 
@@ -298,7 +298,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getMetricValue(m *metricValue) interface{} {
+func getMetricValue(m *metricValue) any {
 	switch m.valueType {
 	case "counter":
 		return atomic.LoadUint64(&m.counter)
@@ -330,8 +330,8 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	defer metricsLock.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(map[string]interface{}{
-		"opts": map[string]interface{}{
+	err := json.NewEncoder(w).Encode(map[string]any{
+		"opts": map[string]any{
 			"max-length": opts.maxLength,
 			"tiny":       opts.tiny,
 			"ttl":        opts.ttl.String(),
@@ -339,7 +339,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 			"broker":     opts.broker,
 			"topic":      opts.topic,
 		},
-		"metrics": map[string]interface{}{
+		"metrics": map[string]any{
 			"mqtt_connections_total": float64(mqttConnections.Load()),
 			"mqtt_connected":         float64(mqttConnected.Load()),
 			"http_requests_total":    float64(httpRequests.Load()),
@@ -371,7 +371,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	log.Printf("Starting cleanupTask")
 	now := time.Now()
 	c := 0
-	metrics.Range(func(k, v interface{}) bool {
+	metrics.Range(func(k, v any) bool {
 		m := v.(*metricValue)
 		if now.Sub(m.updatedAt) > ttl {
 			metrics.Delete(k)
