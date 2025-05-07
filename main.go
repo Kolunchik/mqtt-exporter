@@ -154,7 +154,7 @@ func isCounter(topic string) bool {
 }
 
 func processCounter(topic string, payload []byte) {
-	val, err := strconv.ParseFloat(string(payload), 64)
+	val, err := strconv.ParseUint(string(payload), 10, 64)
 	if err != nil {
 		log.Printf("Topic %v has invalid counter value: %s", topic, payload)
 		return
@@ -165,11 +165,11 @@ func processCounter(topic string, payload []byte) {
 
 	if current, loaded := metrics.LoadOrStore(topic, &metricValue{
 		valueType: "counter",
-		counter:   uint64(val),
+		counter:   val,
 		updatedAt: time.Now(),
 	}); loaded {
 		m := current.(*metricValue)
-		atomic.AddUint64(&m.counter, uint64(val))
+		atomic.AddUint64(&m.counter, val)
 		m.updatedAt = time.Now()
 	}
 }
@@ -368,7 +368,6 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	if noCleanup {
 		return
 	}
-	log.Printf("Starting cleanupTask")
 	now := time.Now()
 	c := 0
 	metrics.Range(func(k, v any) bool {
@@ -379,7 +378,9 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 		}
 		return true
 	})
-	log.Printf("%v metric(s) expired", c)
+	if c > 0 {
+		log.Printf("%v metric(s) expired", c)
+	}
 }
 
 func scheduledCollectMemoryStats() {
