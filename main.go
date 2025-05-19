@@ -50,6 +50,7 @@ var (
 	metricsLock     sync.RWMutex
 	countersLock    sync.Mutex
 	httpRequests    atomic.Uint64
+	httpRequestsOld uint64
 	mqttConnections atomic.Uint64
 	mqttConnected   atomic.Uint32
 	mqttClient      mqtt.Client
@@ -367,6 +368,11 @@ func scheduledCleanupTask(ttl time.Duration) {
 func cleanupTask(noCleanup bool, ttl time.Duration) {
 	if noCleanup {
 		return
+	}
+	if n := httpRequests.Load(); n == httpRequestsOld {
+		return
+	} else {
+		httpRequestsOld = n
 	}
 	now := time.Now()
 	c := 0

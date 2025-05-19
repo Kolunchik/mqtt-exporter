@@ -451,6 +451,13 @@ func TestCleanupTask(t *testing.T) {
 	m := val.(*metricValue)
 	m.updatedAt = time.Now().Add(-10 * time.Minute)
 
+	httpRequestsOld = httpRequests.Load()
+	cleanupTask(false, 5*time.Minute)
+
+	_, loaded = metrics.Load(topic)
+	assert.True(t, loaded, "Метрика опять должна быть загружена")
+
+	httpRequestsOld++
 	cleanupTask(false, 5*time.Minute)
 
 	_, loaded = metrics.Load(topic)
@@ -492,6 +499,12 @@ func TestCleanupTask30m(t *testing.T) {
 	_, loaded = metrics.Load(topic)
 	assert.True(t, loaded, "Метрика не должна быть удалена после очистки")
 
+	cleanupTask(false, 5*time.Minute)
+
+	_, loaded = metrics.Load(topic)
+	assert.True(t, loaded, "Метрика не должна быть удалена после очистки")
+
+	httpRequestsOld++
 	cleanupTask(false, 5*time.Minute)
 
 	_, loaded = metrics.Load(topic)
