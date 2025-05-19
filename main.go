@@ -253,7 +253,6 @@ func isBinaryData(_ []byte) bool {
 }
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
-	httpRequests.Add(1)
 	result := map[string]MetricData{
 		"uptime_seconds": systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
 	}
@@ -296,7 +295,9 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		log.Printf("JSON encode error in metricsHandler: %s", err)
+		return
 	}
+	httpRequests.Add(1)
 }
 
 func getMetricValue(m *metricValue) any {

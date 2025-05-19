@@ -585,6 +585,7 @@ func TestHTTPRequestsValue(t *testing.T) {
 func TestJSONEncodingError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := &http.Request{}
+	o := httpRequests.Load()
 	topic := "/test/error/value"
 	payload := math.NaN()
 	metricVal := &metricValue{
@@ -595,6 +596,7 @@ func TestJSONEncodingError(t *testing.T) {
 	metrics.Store(topic, metricVal)
 	metricsHandler(w, r)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, o, httpRequests.Load())
 }
 
 func TestParseFlags(t *testing.T) {
