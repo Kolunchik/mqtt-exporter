@@ -1,0 +1,76 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*' # Триггер на теги, начинающиеся с 'v'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 'stable'
+
+      - name: Run tests
+        run: go test -v ./...
+        
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 'stable' # Укажите нужную версию Go
+
+      - name: Get tag version
+        id: get_tag
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build for Linux (amd64)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X main.commit=${{ env.TAG_VERSION }}" -o mqtt-exporter-amd64 .
+          tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-amd64.tar.gz mqtt-exporter-amd64
+
+      - name: Build for Linux (arm64)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-X main.commit=${{ env.TAG_VERSION }}" -o mqtt-exporter-arm64 .
+          tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-arm64.tar.gz mqtt-exporter-arm64
+
+      - name: Build for Linux (armv5)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 go build -ldflags="-X main.commit=${{ env.TAG_VERSION }}" -o mqtt-exporter-armv5 .
+          tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-armv5.tar.gz mqtt-exporter-armv5
+
+      - name: Build for Linux (armv7)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-X main.commit=${{ env.TAG_VERSION }}" -o mqtt-exporter-armv7 .
+          tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-armv7.tar.gz mqtt-exporter-armv7
+
+      - name: Build for Linux (386)
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags="-X main.commit=${{ env.TAG_VERSION }}" -o mqtt-exporter-386 .
+          tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-386.tar.gz mqtt-exporter-386
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            mqtt-exporter-${{ env.TAG_VERSION }}.linux-amd64.tar.gz
+            mqtt-exporter-${{ env.TAG_VERSION }}.linux-arm64.tar.gz
+            mqtt-exporter-${{ env.TAG_VERSION }}.linux-armv5.tar.gz
+            mqtt-exporter-${{ env.TAG_VERSION }}.linux-armv7.tar.gz
+            mqtt-exporter-${{ env.TAG_VERSION }}.linux-386.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
