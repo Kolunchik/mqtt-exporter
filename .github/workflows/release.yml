@@ -67,7 +67,7 @@ jobs:
           tar czf mqtt-exporter-${{ env.TAG_VERSION }}.linux-386.tar.gz mqtt-exporter-386
 
       - name: Upload release assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             mqtt-exporter-${{ env.TAG_VERSION }}.linux-amd64.tar.gz
