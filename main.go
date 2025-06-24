@@ -23,7 +23,6 @@ const (
 )
 
 type MetricData struct {
-	Type      string `json:"type,omitempty"`
 	Value     any    `json:"value,omitempty"`
 	Timestamp int64  `json:"ts"`
 	RFC3339   string `json:"rfc3339,omitempty"`
@@ -206,7 +205,6 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !opts.tiny {
-			metric.Type = m.valueType
 			metric.RFC3339 = m.updatedAt.Format(time.RFC3339)
 		}
 
@@ -253,7 +251,6 @@ func getMetricValue(m *metricValue) any {
 func systemMetric(metricType string, value float64) MetricData {
 	now := time.Now()
 	return MetricData{
-		Type:      metricType,
 		Value:     value,
 		Timestamp: now.UnixMilli(),
 		RFC3339:   now.Format(time.RFC3339),

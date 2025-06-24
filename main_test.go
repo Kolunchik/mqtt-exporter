@@ -227,24 +227,20 @@ func TestMetricsHandler(t *testing.T) {
 	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
 	timestampMetric := result["uptime_seconds"]
-	assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
 	assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
 	testTopicMetric, ok := result["test/topic"]
 	assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
-	assert.Equal(t, "number", testTopicMetric.Type, "Тип метрики должен быть 'number'")
 	assert.Equal(t, 42.5, testTopicMetric.Value, "Значение метрики должно быть 42.5")
 	assert.Contains(t, testTopicMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 
 	counterMetric, ok := result["counters/test"]
 	assert.True(t, ok, "Метрика 'counters/test' должна присутствовать в ответе")
-	assert.Equal(t, "counter", counterMetric.Type, "Тип метрики должен быть 'counter'")
 	assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
 	assert.Contains(t, counterMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 
 	textMetric, ok := result["counters/test/text"]
 	assert.True(t, ok, "Метрика 'counters/test/text' должна присутствовать в ответе")
-	assert.Equal(t, "text", textMetric.Type, "Тип метрики должен быть 'text'")
 	assert.Contains(t, textMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 }
 
@@ -295,23 +291,19 @@ func TestMetricsHandlerTiny(t *testing.T) {
 			assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
 			timestampMetric := result["uptime_seconds"]
-			assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
 			assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
 			testTopicMetric, ok := result["test/topic"]
 			assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
-			assert.NotContains(t, testTopicMetric.Type, "number", "Тип метрики должен отсутствовать")
 			assert.Equal(t, "", testTopicMetric.RFC3339, "Поле RFC3339 должно быть пустым")
 			assert.Equal(t, 42.5, testTopicMetric.Value, "Значение метрики должно быть 42.5")
 
 			textMetric, ok := result["counters/test/text"]
 			assert.True(t, ok, "Метрика 'counters/test/text' должна присутствовать в ответе")
-			assert.NotContains(t, testTopicMetric.Type, "text", "Тип метрики должен отсутствовать")
 			assert.Equal(t, "", textMetric.RFC3339, "Поле RFC3339 должно быть пустым")
 
 			counterMetric, ok := result["counters/test"]
 			assert.True(t, ok, "Метрика 'counters/test' должна присутствовать в ответе")
-			assert.NotContains(t, counterMetric.Type, "counter", "Тип метрики должен отсутстовать")
 			assert.Equal(t, "", counterMetric.RFC3339, "Поле RFC3339 должно быть пустым")
 			assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
 		}()
@@ -564,7 +556,6 @@ func TestCollectMemoryStats(t *testing.T) {
 func TestSystemMetric(t *testing.T) {
 	metric := systemMetric("gauge", 42.5)
 
-	assert.Equal(t, "gauge", metric.Type, "Тип метрики должен быть 'gauge'")
 	assert.Equal(t, 42.5, metric.Value, "Значение метрики должно быть 42.5")
 }
 
