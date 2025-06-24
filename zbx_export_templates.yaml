@@ -127,6 +127,9 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.timestamp
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
           master_item:
             key: 'exporter[metrics]'
           tags:

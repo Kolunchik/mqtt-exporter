@@ -23,14 +23,80 @@ const (
 )
 
 type MetricData struct {
-	Value     any    `json:"value,omitempty"`
-	Timestamp int64  `json:"ts"`
-	RFC3339   string `json:"rfc3339,omitempty"`
+	Value     any   `json:"value,omitempty"`
+	Timestamp int64 `json:"ts"`
 }
 
-type metricValue struct {
-	value     any
+type Metric interface {
+	Get() *MetricData
+	Value() any
+	Updated() *time.Time
+}
+
+type stringMetric struct {
+	value     string
 	updatedAt time.Time
+}
+
+func (m *stringMetric) Get() *MetricData {
+	return &MetricData{
+		Value:     m.value,
+		Timestamp: m.updatedAt.UnixMilli(),
+	}
+}
+
+func (m *stringMetric) Value() any {
+	return m.value
+}
+
+func (m *stringMetric) Updated() *time.Time {
+	return &m.updatedAt
+}
+
+type floatMetric struct {
+	value     float64
+	updatedAt time.Time
+}
+
+func (m *floatMetric) Get() *MetricData {
+	return &MetricData{
+		Value:     m.value,
+		Timestamp: m.updatedAt.UnixMilli(),
+	}
+}
+
+func (m *floatMetric) Value() any {
+	return m.value
+}
+
+func (m *floatMetric) Updated() *time.Time {
+	return &m.updatedAt
+}
+
+type counterMetric struct {
+	value     uint64
+	updatedAt time.Time
+}
+
+func (m *counterMetric) Get() *MetricData {
+	return &MetricData{
+		Value:     atomic.LoadUint64(&m.value),
+		Timestamp: m.updatedAt.UnixMilli(),
+	}
+}
+
+func (m *counterMetric) Value() any {
+	return atomic.LoadUint64(&m.value)
+}
+
+func (m *counterMetric) Updated() *time.Time {
+	return &m.updatedAt
+}
+
+func (m *counterMetric) Add(v uint64) *counterMetric {
+	atomic.AddUint64(&m.value, v)
+	m.updatedAt = time.Now()
+	return m
 }
 
 var (
@@ -65,7 +131,7 @@ func parseFlags() {
 	flag.IntVar(&opts.maxLength, "max-length", 0, "Maximum payload length")
 	flag.DurationVar(&opts.ttl, "ttl", 5*time.Minute, "Metrics TTL")
 	flag.BoolVar(&opts.noCleanup, "no-cleanup", false, "Disable metrics cleanup")
-	flag.BoolVar(&opts.tiny, "tiny", false, "Compact output")
+	flag.BoolVar(&opts.tiny, "tiny", false, "noops, legacy switch")
 	flag.Parse()
 }
 
@@ -150,15 +216,13 @@ func processCounter(topic, payload string) {
 	countersLock.Lock()
 	defer countersLock.Unlock()
 
-	if current, loaded := metrics.LoadOrStore(topic, &metricValue{
-		value:     &val,
+	if current, loaded := metrics.LoadOrStore(topic, &counterMetric{
+		value:     val,
 		updatedAt: time.Now(),
 	}); loaded {
-		m := current.(*metricValue)
-		if ptr, ok := m.value.(*uint64); ok {
-			atomic.AddUint64(ptr, val)
+		if m, ok := current.(*counterMetric); ok {
+			m.Add(val)
 		}
-		m.updatedAt = time.Now()
 	}
 }
 
@@ -168,51 +232,41 @@ func processRegularMetric(topic, payload string, maxLength int) {
 		log.Printf("Topic %v payload length exceeds the set limit", topic)
 		return
 	}
-	metricVal := &metricValue{
-		updatedAt: time.Now(),
-	}
+
 	if num, err := strconv.ParseFloat(payload, 64); err != nil {
-		metricVal.value = payload
+		metrics.Store(topic, &stringMetric{
+			value:     payload,
+			updatedAt: time.Now(),
+		})
 	} else {
 		if math.IsNaN(num) {
-			metricVal.value = payload
+			metrics.Store(topic, &stringMetric{
+				value:     payload,
+				updatedAt: time.Now(),
+			})
 		} else if math.IsInf(num, 0) {
-			metricVal.value = payload
+			metrics.Store(topic, &stringMetric{
+				value:     payload,
+				updatedAt: time.Now(),
+			})
 		} else {
-			metricVal.value = num
+			metrics.Store(topic, &floatMetric{
+				value:     num,
+				updatedAt: time.Now(),
+			})
 		}
 	}
-	metrics.Store(topic, metricVal)
 }
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
-	result := map[string]MetricData{
+	result := map[string]*MetricData{
 		"uptime_seconds": systemMetric(time.Since(startTime).Seconds()),
 	}
 
 	metrics.Range(func(k, v any) bool {
-		key := k.(string)
-		m := v.(*metricValue)
-
-		metric := MetricData{
-			Timestamp: m.updatedAt.UnixMilli(),
+		if m, ok := v.(Metric); ok {
+			result[k.(string)] = m.Get()
 		}
-
-		if !opts.tiny {
-			metric.RFC3339 = m.updatedAt.Format(time.RFC3339)
-		}
-
-		switch m.value.(type) {
-		case *uint64:
-			v := m.value.(*uint64)
-			metric.Value = atomic.LoadUint64(v)
-		case string, float64:
-			metric.Value = m.value
-		default:
-			return true
-		}
-
-		result[key] = metric
 		return true
 	})
 
@@ -227,25 +281,11 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	httpRequests.Add(1)
 }
 
-func getMetricValue(m *metricValue) any {
-	switch m.value.(type) {
-	case *uint64:
-		v := m.value.(*uint64)
-		return atomic.LoadUint64(v)
-	case string, float64:
-		return m.value
-	default:
-		log.Printf("Metric has unexpected value type: %t", m.value)
-		return nil
-	}
-}
-
-func systemMetric(value any) MetricData {
+func systemMetric(value any) *MetricData {
 	now := time.Now()
-	return MetricData{
+	return &MetricData{
 		Value:     value,
 		Timestamp: now.UnixMilli(),
-		RFC3339:   now.Format(time.RFC3339),
 	}
 }
 
@@ -271,9 +311,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 			"memory_alloc_total":     memStats.TotalAlloc,
 			"uptime":                 time.Since(startTime).String(),
 		},
-		"status":    "ok",
-		"commit":    commit,
-		"timestamp": time.Now().UnixMilli(),
+		"status": "ok",
+		"commit": commit,
+		"ts":     time.Now().UnixMilli(),
 	})
 
 	if err != nil {
@@ -300,10 +340,11 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	now := time.Now()
 	c := 0
 	metrics.Range(func(k, v any) bool {
-		m := v.(*metricValue)
-		if now.Sub(m.updatedAt) > ttl {
-			metrics.Delete(k)
-			c++
+		if m, ok := v.(Metric); ok {
+			if now.Sub(*m.Updated()) > ttl {
+				metrics.Delete(k)
+				c++
+			}
 		}
 		return true
 	})
@@ -313,7 +354,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 }
 
 func scheduledCollectMemoryStats() {
-	for range time.Tick(15 * time.Second) {
+	for range time.Tick(time.Minute) {
 		collectMemoryStats()
 	}
 }
