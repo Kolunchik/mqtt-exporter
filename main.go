@@ -29,10 +29,7 @@ type MetricData struct {
 }
 
 type metricValue struct {
-	valueType string
-	number    float64
-	text      string
-	counter   uint64
+	value     any
 	updatedAt time.Time
 }
 
@@ -154,12 +151,13 @@ func processCounter(topic, payload string) {
 	defer countersLock.Unlock()
 
 	if current, loaded := metrics.LoadOrStore(topic, &metricValue{
-		valueType: "counter",
-		counter:   val,
+		value:     &val,
 		updatedAt: time.Now(),
 	}); loaded {
 		m := current.(*metricValue)
-		m.counter += val
+		if ptr, ok := m.value.(*uint64); ok {
+			atomic.AddUint64(ptr, val)
+		}
 		m.updatedAt = time.Now()
 	}
 }
@@ -174,18 +172,14 @@ func processRegularMetric(topic, payload string, maxLength int) {
 		updatedAt: time.Now(),
 	}
 	if num, err := strconv.ParseFloat(payload, 64); err != nil {
-		metricVal.text = payload
-		metricVal.valueType = "text"
+		metricVal.value = payload
 	} else {
 		if math.IsNaN(num) {
-			metricVal.text = payload
-			metricVal.valueType = "text"
+			metricVal.value = payload
 		} else if math.IsInf(num, 0) {
-			metricVal.text = payload
-			metricVal.valueType = "text"
+			metricVal.value = payload
 		} else {
-			metricVal.number = num
-			metricVal.valueType = "number"
+			metricVal.value = num
 		}
 	}
 	metrics.Store(topic, metricVal)
@@ -193,7 +187,7 @@ func processRegularMetric(topic, payload string, maxLength int) {
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	result := map[string]MetricData{
-		"uptime_seconds": systemMetric("counter", time.Since(startTime).Seconds()),
+		"uptime_seconds": systemMetric(time.Since(startTime).Seconds()),
 	}
 
 	metrics.Range(func(k, v any) bool {
@@ -208,13 +202,12 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 			metric.RFC3339 = m.updatedAt.Format(time.RFC3339)
 		}
 
-		switch m.valueType {
-		case "counter":
-			metric.Value = atomic.LoadUint64(&m.counter)
-		case "number":
-			metric.Value = m.number
-		case "text":
-			metric.Value = m.text
+		switch m.value.(type) {
+		case *uint64:
+			v := m.value.(*uint64)
+			metric.Value = atomic.LoadUint64(v)
+		case string, float64:
+			metric.Value = m.value
 		default:
 			return true
 		}
@@ -235,20 +228,19 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMetricValue(m *metricValue) any {
-	switch m.valueType {
-	case "counter":
-		return atomic.LoadUint64(&m.counter)
-	case "number":
-		return m.number
-	case "text":
-		return m.text
+	switch m.value.(type) {
+	case *uint64:
+		v := m.value.(*uint64)
+		return atomic.LoadUint64(v)
+	case string, float64:
+		return m.value
 	default:
-		log.Printf("Metric has unexpected value type: %v", m.valueType)
+		log.Printf("Metric has unexpected value type: %t", m.value)
 		return nil
 	}
 }
 
-func systemMetric(metricType string, value float64) MetricData {
+func systemMetric(value any) MetricData {
 	now := time.Now()
 	return MetricData{
 		Value:     value,
