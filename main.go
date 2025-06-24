@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"log"
@@ -14,8 +13,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	//"unicode"
-
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -26,10 +23,8 @@ const (
 )
 
 type MetricData struct {
-	Topic     string `json:"topic,omitempty"`
 	Type      string `json:"type,omitempty"`
 	Value     any    `json:"value,omitempty"`
-	Binary    string `json:"binary,omitempty"`
 	Timestamp int64  `json:"ts"`
 	RFC3339   string `json:"rfc3339,omitempty"`
 }
@@ -38,7 +33,6 @@ type metricValue struct {
 	valueType string
 	number    float64
 	text      string
-	binary    []byte
 	counter   uint64
 	updatedAt time.Time
 }
@@ -47,7 +41,7 @@ var (
 	metrics         sync.Map
 	startTime       = time.Now()
 	memStats        runtime.MemStats
-	metricsLock     sync.RWMutex
+	healthLock      sync.RWMutex
 	countersLock    sync.Mutex
 	httpRequests    atomic.Uint64
 	httpRequestsOld uint64
@@ -120,15 +114,11 @@ func main() {
 	http.HandleFunc("/"+APIVersion+"/suicide", func(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("kill switch on")
 	})
+	b := []byte("{\"name\": \"mqtt-exporter\"}")
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		err := json.NewEncoder(w).Encode(map[string]string{
-			"name":   "mqtt-exporter",
-			"commit": commit,
-		})
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			log.Printf("JSON encode error: %s", err)
+		if _, err := w.Write(b); err != nil {
+			log.Printf("write error in defHandler: %s", err)
 		}
 	})
 
@@ -141,7 +131,7 @@ func messageHandler(_ mqtt.Client, msg mqtt.Message) {
 	if len(topic) == 0 {
 		return
 	}
-	payload := msg.Payload()
+	payload := string(msg.Payload())
 
 	if isCounter(topic) {
 		processCounter(topic, payload)
@@ -154,8 +144,8 @@ func isCounter(topic string) bool {
 	return strings.HasPrefix(topic, counterPrefix) || strings.HasSuffix(topic, counterSuffix)
 }
 
-func processCounter(topic string, payload []byte) {
-	val, err := strconv.ParseUint(string(payload), 10, 64)
+func processCounter(topic, payload string) {
+	val, err := strconv.ParseUint(payload, 10, 64)
 	if err != nil {
 		log.Printf("Topic %v has invalid counter value: %s", topic, payload)
 		return
@@ -170,106 +160,54 @@ func processCounter(topic string, payload []byte) {
 		updatedAt: time.Now(),
 	}); loaded {
 		m := current.(*metricValue)
-		atomic.AddUint64(&m.counter, val)
+		m.counter += val
 		m.updatedAt = time.Now()
 	}
 }
 
-func processRegularMetric(topic string, payload []byte, maxLength int) {
-	var value any
-	var valueType string
+func processRegularMetric(topic, payload string, maxLength int) {
 
 	if maxLength > 0 && len(payload) > maxLength {
 		log.Printf("Topic %v payload length exceeds the set limit", topic)
 		return
 	}
-
-	if num, err := strconv.ParseFloat(string(payload), 64); err == nil {
-		if math.IsNaN(num) {
-			value = string(payload)
-			valueType = "text"
-		} else if math.IsInf(num, 0) {
-			value = string(payload)
-			valueType = "text"
-		} else {
-			value = num
-			valueType = "number"
-		}
-	} else if isBinaryData(payload) {
-		value = payload
-		valueType = "binary"
-	} else {
-		value = string(payload)
-		valueType = "text"
-	}
-
 	metricVal := &metricValue{
-		valueType: valueType,
 		updatedAt: time.Now(),
 	}
-
-	switch v := value.(type) {
-	case float64:
-		metricVal.number = v
-	case string:
-		metricVal.text = v
-	case []byte:
-		metricVal.binary = v
-	default:
-		log.Printf("Topic %v has unexpected value type: %T", topic, v)
-		return
+	if num, err := strconv.ParseFloat(payload, 64); err != nil {
+		metricVal.text = payload
+		metricVal.valueType = "text"
+	} else {
+		if math.IsNaN(num) {
+			metricVal.text = payload
+			metricVal.valueType = "text"
+		} else if math.IsInf(num, 0) {
+			metricVal.text = payload
+			metricVal.valueType = "text"
+		} else {
+			metricVal.number = num
+			metricVal.valueType = "number"
+		}
 	}
-
 	metrics.Store(topic, metricVal)
-}
-
-func isBinaryData(_ []byte) bool {
-	/*
-		const maxTextCheck = 512
-		checkLength := len(data)
-
-		if checkLength < 1 {
-			return false
-		}
-
-		if data[0] == '{' {
-			return false
-		}
-
-		if checkLength > maxTextCheck {
-			checkLength = maxTextCheck
-		}
-
-		for _, b := range data[:checkLength] {
-			if !unicode.Is(unicode.Cyrillic, rune(b)) {
-				return false
-			}
-			if !unicode.IsPrint(rune(b)) && !unicode.IsSpace(rune(b)) {
-				return true
-			}
-		}
-	*/
-	return false
 }
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	result := map[string]MetricData{
-		"uptime_seconds": systemMetric("uptime_seconds", "counter", time.Since(startTime).Seconds()),
+		"uptime_seconds": systemMetric("counter", time.Since(startTime).Seconds()),
 	}
 
 	metrics.Range(func(k, v any) bool {
 		key := k.(string)
 		m := v.(*metricValue)
 
-		ts := m.updatedAt.UnixNano() / 1e6
 		metric := MetricData{
-			Timestamp: ts,
+			Timestamp: m.updatedAt.UnixMilli(),
 		}
 
 		if !opts.tiny {
-			metric.Topic = key
 			metric.Type = m.valueType
-			metric.RFC3339 = time.Unix(0, ts*int64(time.Millisecond)).Format(time.RFC3339)
+			metric.RFC3339 = m.updatedAt.Format(time.RFC3339)
 		}
 
 		switch m.valueType {
@@ -279,8 +217,6 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 			metric.Value = m.number
 		case "text":
 			metric.Value = m.text
-		case "binary":
-			metric.Binary = base64.StdEncoding.EncodeToString(m.binary)
 		default:
 			return true
 		}
@@ -308,28 +244,25 @@ func getMetricValue(m *metricValue) any {
 		return m.number
 	case "text":
 		return m.text
-	case "binary":
-		return base64.StdEncoding.EncodeToString(m.binary)
 	default:
 		log.Printf("Metric has unexpected value type: %v", m.valueType)
 		return nil
 	}
 }
 
-func systemMetric(topic, metricType string, value float64) MetricData {
+func systemMetric(metricType string, value float64) MetricData {
 	now := time.Now()
 	return MetricData{
-		Topic:     topic,
 		Type:      metricType,
 		Value:     value,
-		Timestamp: now.UnixNano() / 1e6,
+		Timestamp: now.UnixMilli(),
 		RFC3339:   now.Format(time.RFC3339),
 	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	metricsLock.RLock()
-	defer metricsLock.RUnlock()
+	healthLock.RLock()
+	defer healthLock.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(map[string]any{
@@ -342,16 +275,16 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 			"topic":      opts.topic,
 		},
 		"metrics": map[string]any{
-			"mqtt_connections_total": float64(mqttConnections.Load()),
-			"mqtt_connected":         float64(mqttConnected.Load()),
-			"http_requests_total":    float64(httpRequests.Load()),
-			"memory_alloc":           float64(memStats.Alloc),
-			"memory_total_alloc":     float64(memStats.TotalAlloc),
+			"mqtt_connections_total": mqttConnections.Load(),
+			"mqtt_connected":         mqttConnected.Load(),
+			"http_requests_total":    httpRequests.Load(),
+			"memory_alloc":           memStats.Alloc,
+			"memory_alloc_total":     memStats.TotalAlloc,
 			"uptime":                 time.Since(startTime).String(),
 		},
 		"status":    "ok",
 		"commit":    commit,
-		"timestamp": time.Now().Unix(),
+		"timestamp": time.Now().UnixMilli(),
 	})
 
 	if err != nil {
@@ -370,7 +303,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	if noCleanup {
 		return
 	}
-	if n := httpRequests.Load(); n == httpRequestsOld {
+	if n := httpRequests.Load(); httpRequestsOld == n {
 		return
 	} else {
 		httpRequestsOld = n
@@ -391,7 +324,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 }
 
 func scheduledCollectMemoryStats() {
-	for range time.Tick(5 * time.Second) {
+	for range time.Tick(15 * time.Second) {
 		collectMemoryStats()
 	}
 }

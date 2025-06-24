@@ -15,7 +15,7 @@ zabbix_export:
         - name: 'Templates/Network devices'
       items:
         - uuid: 9a4942b261d64f439ef6f14ad3877423
-          name: '{$N_MQTT}: Коммит (версия) mqtt-exporter'
+          name: '{$N_MQTT}: Версия mqtt-exporter'
           type: DEPENDENT
           key: 'exporter[commit]'
           history: 1d

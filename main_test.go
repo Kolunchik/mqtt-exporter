@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var httpRequestsCounter = uint64(0)
+var httpRequestsCounter atomic.Uint64
 
 type mockMessage struct {
 	topic   string
@@ -70,7 +70,7 @@ func TestIsCounter(t *testing.T) {
 
 func TestProcessCounter_InvalidPayload(t *testing.T) {
 	topic := "counters/test"
-	invalidPayload := []byte("not_a_number")
+	invalidPayload := "not_a_number"
 
 	processCounter(topic, invalidPayload)
 
@@ -80,7 +80,7 @@ func TestProcessCounter_InvalidPayload(t *testing.T) {
 
 func TestProcessCounter(t *testing.T) {
 	topic := "counters/test"
-	payload := []byte("10")
+	payload := "10"
 
 	processCounter(topic, payload)
 
@@ -90,18 +90,28 @@ func TestProcessCounter(t *testing.T) {
 	m := val.(*metricValue)
 	assert.Equal(t, uint64(10), atomic.LoadUint64(&m.counter), "Значение счетчика должно быть 10")
 
+	var wg sync.WaitGroup
+	for range 100 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			processCounter(topic, payload)
+		}()
+	}
+	wg.Wait()
+
 	processCounter(topic, payload)
 
 	val, loaded = metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
 
 	m = val.(*metricValue)
-	assert.Equal(t, uint64(20), atomic.LoadUint64(&m.counter), "Значение счетчика должно быть 20")
+	assert.Equal(t, uint64(1020), atomic.LoadUint64(&m.counter), "Значение счетчика должно быть 1020 (0x3fc)")
 }
 
 func TestProcessRegularMetric(t *testing.T) {
 	topic := "test/topic"
-	payload := []byte("42.5")
+	payload := "42.5"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -112,7 +122,7 @@ func TestProcessRegularMetric(t *testing.T) {
 	assert.Equal(t, 42.5, m.number, "Значение метрики должно быть 42.5")
 
 	topic = "test/topic/NaN"
-	payload = []byte("NaN")
+	payload = "NaN"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -124,7 +134,7 @@ func TestProcessRegularMetric(t *testing.T) {
 	assert.Equal(t, "text", m.valueType, "Тип метрики должно быть text")
 
 	topic = "test/topic/+Inf"
-	payload = []byte("+Inf")
+	payload = "+Inf"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -139,7 +149,7 @@ func TestProcessRegularMetric(t *testing.T) {
 func TestProcessRegularMetricMaxLength(t *testing.T) {
 	maxLength := 0
 	topic := "test/short"
-	payload := []byte("blah")
+	payload := "blah"
 
 	processRegularMetric(topic, payload, maxLength)
 
@@ -151,7 +161,7 @@ func TestProcessRegularMetricMaxLength(t *testing.T) {
 	processRegularMetric(topic, payload, maxLength)
 
 	topic = "test/long"
-	payload = []byte("blah")
+	payload = "blah"
 
 	_, loaded = metrics.Load(topic)
 	assert.False(t, loaded, "Метрика не должна быть загружена")
@@ -161,7 +171,7 @@ func TestProcessRegularMetricMaxLength(t *testing.T) {
 
 func TestProcessRegularMetric_InvalidPayload(t *testing.T) {
 	topic := "test/topic"
-	invalidPayload := []byte("not_a_number")
+	invalidPayload := "not_a_number"
 
 	processRegularMetric(topic, invalidPayload, 0)
 
@@ -191,11 +201,6 @@ func TestMetricsHandler(t *testing.T) {
 		counter:   10,
 		updatedAt: time.Now(),
 	})
-	metrics.Store("counters/test/binary", &metricValue{
-		valueType: "binary",
-		binary:    []byte("TESTTEST"),
-		updatedAt: time.Now(),
-	})
 	metrics.Store("counters/test/unc", &metricValue{
 		valueType: "unk",
 		updatedAt: time.Now(),
@@ -208,7 +213,7 @@ func TestMetricsHandler(t *testing.T) {
 	handler := http.HandlerFunc(metricsHandler)
 
 	handler.ServeHTTP(rr, req)
-	httpRequestsCounter++
+	httpRequestsCounter.Add(1)
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
@@ -219,35 +224,27 @@ func TestMetricsHandler(t *testing.T) {
 	_, ok := result["counters/test/unc"]
 	assert.False(t, ok, "Ответ НЕ должен содержать метрику counter/test/unc")
 
-	assert.Contains(t, result, "counters/test/binary", "Ответ должен содержать метрику counter/test/binary")
 	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
 	timestampMetric := result["uptime_seconds"]
-	assert.Equal(t, "uptime_seconds", timestampMetric.Topic, "Топик системной метрики должен быть 'uptime_seconds'")
 	assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
 	assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
 	testTopicMetric, ok := result["test/topic"]
 	assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
-	assert.Equal(t, "test/topic", testTopicMetric.Topic, "Топик метрики должен быть 'test/topic'")
 	assert.Equal(t, "number", testTopicMetric.Type, "Тип метрики должен быть 'number'")
 	assert.Equal(t, 42.5, testTopicMetric.Value, "Значение метрики должно быть 42.5")
-	assert.Equal(t, "", testTopicMetric.Binary, "Поле Binary метрики должно быть пустым")
 	assert.Contains(t, testTopicMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 
 	counterMetric, ok := result["counters/test"]
 	assert.True(t, ok, "Метрика 'counters/test' должна присутствовать в ответе")
-	assert.Equal(t, "counters/test", counterMetric.Topic, "Топик метрики должен быть 'counters/test'")
 	assert.Equal(t, "counter", counterMetric.Type, "Тип метрики должен быть 'counter'")
 	assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
-	assert.Equal(t, "", counterMetric.Binary, "Поле Binary метрики должно быть пустым")
 	assert.Contains(t, counterMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 
 	textMetric, ok := result["counters/test/text"]
 	assert.True(t, ok, "Метрика 'counters/test/text' должна присутствовать в ответе")
-	assert.Equal(t, "counters/test/text", textMetric.Topic, "Топик метрики должен быть 'counters/test'")
 	assert.Equal(t, "text", textMetric.Type, "Тип метрики должен быть 'text'")
-	assert.Equal(t, "", textMetric.Binary, "Поле Binary метрики должно быть пустым")
 	assert.Contains(t, textMetric.RFC3339, "T", "Поле RFC3339 метрики должно содержать T")
 }
 
@@ -261,53 +258,66 @@ func TestMetricsHandlerTiny(t *testing.T) {
 		number:    42.5,
 		updatedAt: now,
 	})
+	metrics.Store("counters/test/text", &metricValue{
+		valueType: "text",
+		text:      "test text",
+		updatedAt: time.Now(),
+	})
 	metrics.Store("counters/test", &metricValue{
 		valueType: "counter",
 		counter:   10,
 		updatedAt: now,
 	})
 
-	req, err := http.NewRequest("GET", "/v1/metrics", nil)
-	assert.NoError(t, err, "Ошибка создания запроса")
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(metricsHandler)
-
 	opts.tiny = true
 
-	handler.ServeHTTP(rr, req)
-	httpRequestsCounter++
+	loops := 100
+	var wg sync.WaitGroup
+	for range loops {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			req, err := http.NewRequest("GET", "/v1/metrics", nil)
+			assert.NoError(t, err, "Ошибка создания запроса")
 
-	opts.tiny = false
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(metricsHandler)
 
-	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
+			handler.ServeHTTP(rr, req)
+			httpRequestsCounter.Add(1)
 
-	var result map[string]MetricData
-	err = json.Unmarshal(rr.Body.Bytes(), &result)
-	assert.NoError(t, err, "Ошибка декодирования JSON")
+			assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
-	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
+			var result map[string]MetricData
+			err = json.Unmarshal(rr.Body.Bytes(), &result)
+			assert.NoError(t, err, "Ошибка декодирования JSON")
 
-	timestampMetric := result["uptime_seconds"]
-	assert.Equal(t, "uptime_seconds", timestampMetric.Topic, "Топик системной метрики должен быть 'uptime_seconds'")
-	assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
-	assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
+			assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 
-	testTopicMetric, ok := result["test/topic"]
-	assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
-	assert.NotContains(t, testTopicMetric.Topic, "test/topic", "Топик метрики должен отсутствовать")
-	assert.NotContains(t, testTopicMetric.Type, "number", "Тип метрики должен отсутствовать")
-	assert.Equal(t, "", testTopicMetric.RFC3339, "Поле RFC3339 должно быть пустым")
-	assert.Equal(t, "", testTopicMetric.Binary, "Поле Binary метрики должно быть пустым")
-	assert.Equal(t, 42.5, testTopicMetric.Value, "Значение метрики должно быть 42.5")
+			timestampMetric := result["uptime_seconds"]
+			assert.Equal(t, "counter", timestampMetric.Type, "Тип системной метрики должен быть 'counter'")
+			assert.NotZero(t, timestampMetric.Timestamp, "Временная метка должна быть не нулевой")
 
-	counterMetric, ok := result["counters/test"]
-	assert.True(t, ok, "Метрика 'counters/test' должна присутствовать в ответе")
-	assert.NotContains(t, counterMetric.Topic, "counters/test", "Топик метрики должен отсутстовать")
-	assert.NotContains(t, counterMetric.Type, "counter", "Тип метрики должен отсутстовать")
-	assert.Equal(t, "", counterMetric.RFC3339, "Поле RFC3339 должно быть пустым")
-	assert.Equal(t, "", counterMetric.Binary, "Поле Binary метрики должно быть пустым")
-	assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
+			testTopicMetric, ok := result["test/topic"]
+			assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
+			assert.NotContains(t, testTopicMetric.Type, "number", "Тип метрики должен отсутствовать")
+			assert.Equal(t, "", testTopicMetric.RFC3339, "Поле RFC3339 должно быть пустым")
+			assert.Equal(t, 42.5, testTopicMetric.Value, "Значение метрики должно быть 42.5")
+
+			textMetric, ok := result["counters/test/text"]
+			assert.True(t, ok, "Метрика 'counters/test/text' должна присутствовать в ответе")
+			assert.NotContains(t, testTopicMetric.Type, "text", "Тип метрики должен отсутствовать")
+			assert.Equal(t, "", textMetric.RFC3339, "Поле RFC3339 должно быть пустым")
+
+			counterMetric, ok := result["counters/test"]
+			assert.True(t, ok, "Метрика 'counters/test' должна присутствовать в ответе")
+			assert.NotContains(t, counterMetric.Type, "counter", "Тип метрики должен отсутстовать")
+			assert.Equal(t, "", counterMetric.RFC3339, "Поле RFC3339 должно быть пустым")
+			assert.Equal(t, float64(10), counterMetric.Value, "Значение счетчика должно быть 10")
+		}()
+	}
+	wg.Wait()
+	assert.Equal(t, httpRequests.Load(), httpRequestsCounter.Load())
 }
 
 func TestMetricsHandler_EmptyMetrics(t *testing.T) {
@@ -320,7 +330,7 @@ func TestMetricsHandler_EmptyMetrics(t *testing.T) {
 	metrics.Clear()
 
 	handler.ServeHTTP(rr, req)
-	httpRequestsCounter++
+	httpRequestsCounter.Add(1)
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
@@ -333,22 +343,37 @@ func TestMetricsHandler_EmptyMetrics(t *testing.T) {
 }
 
 func TestHealthHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/health", nil)
-	assert.NoError(t, err, "Ошибка создания запроса")
+	var wg sync.WaitGroup
+	loop := 5
+	for range loop {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			req, err := http.NewRequest("GET", "/v1/health", nil)
+			assert.NoError(t, err, "Ошибка создания запроса")
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(healthHandler)
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(healthHandler)
 
-	handler.ServeHTTP(rr, req)
+			handler.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
+			assert.Equal(t, http.StatusOK, rr.Code, "Код ответа должен быть 200")
 
-	var result map[string]any
-	err = json.Unmarshal(rr.Body.Bytes(), &result)
-	assert.NoError(t, err, "Ошибка декодирования JSON")
+			var result map[string]any
+			err = json.Unmarshal(rr.Body.Bytes(), &result)
+			assert.NoError(t, err, "Ошибка декодирования JSON")
 
-	assert.Equal(t, "ok", result["status"], "Статус должен быть 'ok'")
-	assert.Contains(t, result, "metrics", "Ответ должен содержать служебные метрики")
+			assert.Equal(t, "ok", result["status"], "Статус должен быть 'ok'")
+			assert.Contains(t, result, "metrics", "Ответ должен содержать служебные метрики")
+
+			var m map[string]any
+			m = result["metrics"].(map[string]any)
+			assert.Equal(t, httpRequestsCounter.Load(), uint64(m["http_requests_total"].(float64)))
+			assert.Equal(t, mqttConnections.Load(), uint64(m["mqtt_connections_total"].(float64)))
+			assert.Equal(t, mqttConnected.Load(), uint32(m["mqtt_connected"].(float64)))
+		}()
+	}
+	wg.Wait()
 }
 
 func TestHealthHandler_NoMetrics(t *testing.T) {
@@ -369,40 +394,51 @@ func TestHealthHandler_NoMetrics(t *testing.T) {
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
 	assert.Equal(t, "ok", result["status"], "Статус должен быть 'ok'")
+	assert.Equal(t, commit, result["commit"])
 	assert.Contains(t, result, "metrics", "Ответ должен содержать служебные метрики")
+
+	var m map[string]any
+	m = result["metrics"].(map[string]any)
+	assert.Equal(t, httpRequestsCounter.Load(), uint64(m["http_requests_total"].(float64)))
+	assert.Equal(t, mqttConnections.Load(), uint64(m["mqtt_connections_total"].(float64)))
+	assert.Equal(t, mqttConnected.Load(), uint32(m["mqtt_connected"].(float64)))
 }
 
 func TestMessageHandler(t *testing.T) {
-	topic := "test/topic"
-	payload := []byte("42.5")
 
+	topic := "test/topic"
 	message := &mockMessage{
 		topic:   topic,
-		payload: payload,
+		payload: []byte("42.5"),
 	}
 
-	messageHandler(nil, message)
-
-	val, loaded := metrics.Load(topic)
-	assert.True(t, loaded, "Метрика должна быть загружена")
-
-	m := val.(*metricValue)
-	assert.Equal(t, 42.5, m.number, "Значение метрики должно быть 42.5")
-
-	topic = "test/topic/count"
-
-	message = &mockMessage{
-		topic:   topic,
+	topic1 := "test/topic/count"
+	message1 := &mockMessage{
+		topic:   topic1,
 		payload: []byte("101"),
 	}
 
-	messageHandler(nil, message)
+	var wg sync.WaitGroup
+	loops := 100
+	for range loops {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			messageHandler(nil, message)
+			messageHandler(nil, message1)
+		}()
+	}
+	wg.Wait()
 
-	val, loaded = metrics.Load(topic)
+	val, loaded := metrics.Load(topic)
 	assert.True(t, loaded, "Метрика должна быть загружена")
+	m := val.(*metricValue)
+	assert.Equal(t, 42.5, m.number, "Значение метрики должно быть 42.5")
 
-	m = val.(*metricValue)
-	assert.Equal(t, uint64(101), m.counter, "Значение метрики должно быть 101")
+	val1, loaded := metrics.Load(topic1)
+	m1 := val1.(*metricValue)
+	assert.True(t, loaded, "Метрика должна быть загружена")
+	assert.Equal(t, uint64(101*loops), m1.counter, "Значение метрики должно быть %v", 101*loops)
 }
 
 func TestMessageHandler_InvalidTopic(t *testing.T) {
@@ -441,7 +477,7 @@ func TestMessageHandler_InvalidPayload(t *testing.T) {
 
 func TestCleanupTask(t *testing.T) {
 	topic := "test/topic"
-	payload := []byte("42.5")
+	payload := "42.5"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -466,7 +502,7 @@ func TestCleanupTask(t *testing.T) {
 
 func TestCleanupTaskNoCleanup(t *testing.T) {
 	topic := "test/topic"
-	payload := []byte("42.5")
+	payload := "42.5"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -484,7 +520,7 @@ func TestCleanupTaskNoCleanup(t *testing.T) {
 
 func TestCleanupTask30m(t *testing.T) {
 	topic := "test/topic"
-	payload := []byte("42.5")
+	payload := "42.5"
 
 	processRegularMetric(topic, payload, 0)
 
@@ -526,9 +562,8 @@ func TestCollectMemoryStats(t *testing.T) {
 }
 
 func TestSystemMetric(t *testing.T) {
-	metric := systemMetric("test_metric", "gauge", 42.5)
+	metric := systemMetric("gauge", 42.5)
 
-	assert.Equal(t, "test_metric", metric.Topic, "Топик метрики должен быть 'test_metric'")
 	assert.Equal(t, "gauge", metric.Type, "Тип метрики должен быть 'gauge'")
 	assert.Equal(t, 42.5, metric.Value, "Значение метрики должно быть 42.5")
 }
@@ -557,15 +592,6 @@ func TestGetMetricValue(t *testing.T) {
 
 	value = getMetricValue(m)
 	assert.Equal(t, uint64(101), value, "Значение метрики должно быть 101")
-
-	m = &metricValue{
-		valueType: "binary",
-		binary:    []byte("HAHA"),
-	}
-
-	value = getMetricValue(m)
-	assert.Equal(t, base64.StdEncoding.EncodeToString([]byte("HAHA")), value, "Значение метрики должно быть HAHA")
-
 }
 
 func TestGetMetricValue_InvalidType(t *testing.T) {
@@ -578,8 +604,7 @@ func TestGetMetricValue_InvalidType(t *testing.T) {
 }
 
 func TestHTTPRequestsValue(t *testing.T) {
-	c := httpRequests.Load()
-	assert.Equal(t, c, httpRequestsCounter)
+	assert.Equal(t, httpRequests.Load(), httpRequestsCounter.Load())
 }
 
 func TestJSONEncodingError(t *testing.T) {
