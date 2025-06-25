@@ -28,9 +28,9 @@ type MetricData struct {
 }
 
 type Metric interface {
-	Get() *MetricData
+	GetMetric() *MetricData
 	Value() any
-	Updated() *time.Time
+	UpdatedAt() *time.Time
 }
 
 type stringMetric struct {
@@ -38,7 +38,7 @@ type stringMetric struct {
 	updatedAt time.Time
 }
 
-func (m *stringMetric) Get() *MetricData {
+func (m *stringMetric) GetMetric() *MetricData {
 	return &MetricData{
 		Value:     m.value,
 		Timestamp: m.updatedAt.UnixMilli(),
@@ -49,7 +49,7 @@ func (m *stringMetric) Value() any {
 	return m.value
 }
 
-func (m *stringMetric) Updated() *time.Time {
+func (m *stringMetric) UpdatedAt() *time.Time {
 	return &m.updatedAt
 }
 
@@ -58,7 +58,7 @@ type floatMetric struct {
 	updatedAt time.Time
 }
 
-func (m *floatMetric) Get() *MetricData {
+func (m *floatMetric) GetMetric() *MetricData {
 	return &MetricData{
 		Value:     m.value,
 		Timestamp: m.updatedAt.UnixMilli(),
@@ -69,7 +69,7 @@ func (m *floatMetric) Value() any {
 	return m.value
 }
 
-func (m *floatMetric) Updated() *time.Time {
+func (m *floatMetric) UpdatedAt() *time.Time {
 	return &m.updatedAt
 }
 
@@ -78,7 +78,7 @@ type counterMetric struct {
 	updatedAt time.Time
 }
 
-func (m *counterMetric) Get() *MetricData {
+func (m *counterMetric) GetMetric() *MetricData {
 	return &MetricData{
 		Value:     atomic.LoadUint64(&m.value),
 		Timestamp: m.updatedAt.UnixMilli(),
@@ -89,7 +89,7 @@ func (m *counterMetric) Value() any {
 	return atomic.LoadUint64(&m.value)
 }
 
-func (m *counterMetric) Updated() *time.Time {
+func (m *counterMetric) UpdatedAt() *time.Time {
 	return &m.updatedAt
 }
 
@@ -260,12 +260,13 @@ func processRegularMetric(topic, payload string, maxLength int) {
 
 func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	result := map[string]*MetricData{
-		"uptime_seconds": systemMetric(time.Since(startTime).Seconds()),
+		"uptime_seconds":                  systemMetric(time.Since(startTime).Seconds()),
+		"/devices/system/controls/uptime": systemMetric(time.Since(startTime).Seconds()),
 	}
 
 	metrics.Range(func(k, v any) bool {
 		if m, ok := v.(Metric); ok {
-			result[k.(string)] = m.Get()
+			result[k.(string)] = m.GetMetric()
 		}
 		return true
 	})
@@ -297,7 +298,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(map[string]any{
 		"opts": map[string]any{
 			"max-length": opts.maxLength,
-			"tiny":       opts.tiny,
 			"ttl":        opts.ttl.String(),
 			"no-cleanup": opts.noCleanup,
 			"broker":     opts.broker,
@@ -341,7 +341,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	c := 0
 	metrics.Range(func(k, v any) bool {
 		if m, ok := v.(Metric); ok {
-			if now.Sub(*m.Updated()) > ttl {
+			if now.Sub(*m.UpdatedAt()) > ttl {
 				metrics.Delete(k)
 				c++
 			}

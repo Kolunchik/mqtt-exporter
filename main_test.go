@@ -259,11 +259,11 @@ func TestMectricsValue(t *testing.T) {
 		updatedAt: time,
 	}
 	assert.Equal(t, 42.5, f.Value())
-	assert.Equal(t, &time, f.Updated())
+	assert.Equal(t, &time, f.UpdatedAt())
 	assert.Equal(t, "test text", s.Value())
-	assert.Equal(t, &time, s.Updated())
+	assert.Equal(t, &time, s.UpdatedAt())
 	assert.Equal(t, v, c.Value())
-	assert.Equal(t, &time, c.Updated())
+	assert.Equal(t, &time, c.UpdatedAt())
 
 }
 
@@ -347,8 +347,10 @@ func TestMetricsHandler_EmptyMetrics(t *testing.T) {
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
-	assert.Len(t, result, 1, "Ответ должен содержать одну метрикy")
+	assert.Len(t, result, 2, "Ответ должен содержать одну метрикy")
 	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
+	assert.Contains(t, result, "/devices/system/controls/uptime", "Ответ должен содержать метрику /devices/system/controls/uptime")
+
 }
 
 func TestHealthHandler(t *testing.T) {
