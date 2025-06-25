@@ -10,7 +10,7 @@
 # Description:       mqtt-exporter
 ### END INIT INFO
 
-EXE="./mqtt-exporter -http-addr 0.0.0.0:8080 -tiny"
+EXE="./mqtt-exporter -http-addr 0.0.0.0:8080"
 CHDIR="/opt"
 PIDFILE="/var/run/mqtt-exporter.pid"
 SCRIPT="while true;do ${EXE}; sleep 30; done"

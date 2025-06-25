@@ -283,10 +283,9 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func systemMetric(value any) *MetricData {
-	now := time.Now()
 	return &MetricData{
 		Value:     value,
-		Timestamp: now.UnixMilli(),
+		Timestamp: time.Now().UnixMilli(),
 	}
 }
 

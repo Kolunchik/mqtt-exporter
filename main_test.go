@@ -347,10 +347,9 @@ func TestMetricsHandler_EmptyMetrics(t *testing.T) {
 	err = json.Unmarshal(rr.Body.Bytes(), &result)
 	assert.NoError(t, err, "Ошибка декодирования JSON")
 
-	assert.Len(t, result, 2, "Ответ должен содержать одну метрикy")
+	assert.Len(t, result, 2, "Ответ должен содержать две метрики")
 	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
 	assert.Contains(t, result, "/devices/system/controls/uptime", "Ответ должен содержать метрику /devices/system/controls/uptime")
-
 }
 
 func TestHealthHandler(t *testing.T) {

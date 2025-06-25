@@ -6,7 +6,7 @@ After=network.target mosquitto.service
 Type=simple
 Restart=always
 RestartSec=3
-ExecStart=/opt/mqtt-exporter -http-addr 0.0.0.0:8080 -tiny
+ExecStart=/opt/mqtt-exporter -http-addr 0.0.0.0:8080
 
 [Install]
 WantedBy=multi-user.target
