@@ -10,7 +10,7 @@ zabbix_export:
       description: 'https://github.com/Kolunchik/mqtt-exporter'
       vendor:
         name: 'https://github.com/Kolunchik/mqtt-exporter'
-        version: 1.0.0
+        version: 1.0.1
       groups:
         - name: 'Templates/Network devices'
       items:
@@ -119,14 +119,14 @@ zabbix_export:
         - uuid: 13c48916a72d4a4789e31238643bd9c8
           name: '{$N_MQTT}: Локальное время на устройстве'
           type: DEPENDENT
-          key: 'exporter[timestamp]'
+          key: 'exporter[ts]'
           history: 1d
           trends: '0'
           units: unixtime
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $.timestamp
+                - $.ts
             - type: MULTIPLIER
               parameters:
                 - '0.001'

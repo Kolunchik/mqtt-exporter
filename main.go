@@ -23,7 +23,7 @@ const (
 )
 
 type MetricData struct {
-	Value     any   `json:"value,omitempty"`
+	Value     any   `json:"value"`
 	Timestamp int64 `json:"ts"`
 }
 
