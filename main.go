@@ -17,9 +17,10 @@ import (
 )
 
 const (
-	APIVersion    = "v1"
-	counterSuffix = "/count"
-	counterPrefix = "counters/"
+	APIVersion           = "v1"
+	counterSuffix        = "/count"
+	counterPrefix        = "counters/"
+	virtualCounterPrefix = "/devices/wb-gpio/controls/EXT"
 )
 
 type MetricData struct {
@@ -30,12 +31,15 @@ type MetricData struct {
 type Metric interface {
 	GetMetric() *MetricData
 	Value() any
-	UpdatedAt() *time.Time
+	UpdatedAt() (*time.Time, bool)
+	Hide()
+	Hidden() bool
 }
 
 type stringMetric struct {
 	value     string
 	updatedAt time.Time
+	hidden    bool
 }
 
 func (m *stringMetric) GetMetric() *MetricData {
@@ -49,13 +53,22 @@ func (m *stringMetric) Value() any {
 	return m.value
 }
 
-func (m *stringMetric) UpdatedAt() *time.Time {
-	return &m.updatedAt
+func (m *stringMetric) UpdatedAt() (*time.Time, bool) {
+	return &m.updatedAt, false
+}
+
+func (m *stringMetric) Hide() {
+	m.hidden = true
+}
+
+func (m *stringMetric) Hidden() bool {
+	return m.hidden
 }
 
 type floatMetric struct {
 	value     float64
 	updatedAt time.Time
+	hidden    bool
 }
 
 func (m *floatMetric) GetMetric() *MetricData {
@@ -69,34 +82,51 @@ func (m *floatMetric) Value() any {
 	return m.value
 }
 
-func (m *floatMetric) UpdatedAt() *time.Time {
-	return &m.updatedAt
+func (m *floatMetric) UpdatedAt() (*time.Time, bool) {
+	return &m.updatedAt, false
+}
+
+func (m *floatMetric) Hide() {
+	m.hidden = true
+}
+
+func (m *floatMetric) Hidden() bool {
+	return m.hidden
 }
 
 type counterMetric struct {
-	value     uint64
+	value     atomic.Uint64
 	updatedAt time.Time
+	hidden    bool
 }
 
 func (m *counterMetric) GetMetric() *MetricData {
 	return &MetricData{
-		Value:     atomic.LoadUint64(&m.value),
+		Value:     m.value.Load(),
 		Timestamp: m.updatedAt.UnixMilli(),
 	}
 }
 
 func (m *counterMetric) Value() any {
-	return atomic.LoadUint64(&m.value)
+	return m.value.Load()
 }
 
-func (m *counterMetric) UpdatedAt() *time.Time {
-	return &m.updatedAt
+func (m *counterMetric) UpdatedAt() (*time.Time, bool) {
+	return &m.updatedAt, true
 }
 
-func (m *counterMetric) Add(v uint64) *counterMetric {
-	atomic.AddUint64(&m.value, v)
+func (m *counterMetric) Hide() {
+	m.hidden = true
+}
+
+func (m *counterMetric) Hidden() bool {
+	return m.hidden
+}
+
+func (m *counterMetric) Add(v uint64) {
+	m.value.Add(v)
+	m.hidden = false
 	m.updatedAt = time.Now()
-	return m
 }
 
 var (
@@ -166,10 +196,7 @@ func main() {
 		mqttClient = c
 	}
 
-	if !opts.noCleanup {
-		go scheduledCleanupTask(opts.ttl)
-	}
-	go scheduledCollectMemoryStats()
+	go scheduledTasks(opts.noCleanup, opts.ttl)
 
 	http.HandleFunc("/"+APIVersion+"/metrics", metricsHandler)
 	http.HandleFunc("/"+APIVersion+"/health", healthHandler)
@@ -197,13 +224,19 @@ func messageHandler(_ mqtt.Client, msg mqtt.Message) {
 
 	if isCounter(topic) {
 		processCounter(topic, payload)
-	} else {
-		processRegularMetric(topic, payload, opts.maxLength)
+		return
+	} else if virtualCounter(topic) {
+		processCounter(topic+"/vc", payload)
 	}
+	processRegularMetric(topic, payload, opts.maxLength)
 }
 
 func isCounter(topic string) bool {
 	return strings.HasPrefix(topic, counterPrefix) || strings.HasSuffix(topic, counterSuffix)
+}
+
+func virtualCounter(topic string) bool {
+	return strings.HasPrefix(topic, virtualCounterPrefix)
 }
 
 func processCounter(topic, payload string) {
@@ -216,13 +249,11 @@ func processCounter(topic, payload string) {
 	countersLock.Lock()
 	defer countersLock.Unlock()
 
-	if current, loaded := metrics.LoadOrStore(topic, &counterMetric{
-		value:     val,
+	current, _ := metrics.LoadOrStore(topic, &counterMetric{
 		updatedAt: time.Now(),
-	}); loaded {
-		if m, ok := current.(*counterMetric); ok {
-			m.Add(val)
-		}
+	})
+	if m, ok := current.(*counterMetric); ok {
+		m.Add(val)
 	}
 }
 
@@ -233,28 +264,16 @@ func processRegularMetric(topic, payload string, maxLength int) {
 		return
 	}
 
-	if num, err := strconv.ParseFloat(payload, 64); err != nil {
+	if num, err := strconv.ParseFloat(payload, 64); err != nil || math.IsNaN(num) || math.IsInf(num, 0) {
 		metrics.Store(topic, &stringMetric{
 			value:     payload,
 			updatedAt: time.Now(),
 		})
 	} else {
-		if math.IsNaN(num) {
-			metrics.Store(topic, &stringMetric{
-				value:     payload,
-				updatedAt: time.Now(),
-			})
-		} else if math.IsInf(num, 0) {
-			metrics.Store(topic, &stringMetric{
-				value:     payload,
-				updatedAt: time.Now(),
-			})
-		} else {
-			metrics.Store(topic, &floatMetric{
-				value:     num,
-				updatedAt: time.Now(),
-			})
-		}
+		metrics.Store(topic, &floatMetric{
+			value:     num,
+			updatedAt: time.Now(),
+		})
 	}
 }
 
@@ -265,7 +284,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	metrics.Range(func(k, v any) bool {
-		if m, ok := v.(Metric); ok {
+		if m, ok := v.(Metric); ok && !m.Hidden() {
 			result[k.(string)] = m.GetMetric()
 		}
 		return true
@@ -321,9 +340,10 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func scheduledCleanupTask(ttl time.Duration) {
+func scheduledTasks(noCleanup bool, ttl time.Duration) {
 	for range time.Tick(time.Minute) {
-		cleanupTask(false, ttl)
+		cleanupTask(noCleanup, ttl)
+		runtime.ReadMemStats(&memStats)
 	}
 }
 
@@ -339,8 +359,13 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	now := time.Now()
 	c := 0
 	metrics.Range(func(k, v any) bool {
-		if m, ok := v.(Metric); ok {
-			if now.Sub(*m.UpdatedAt()) > ttl {
+		if m, ok := v.(Metric); ok && !m.Hidden() {
+			updatedAt, immortal := m.UpdatedAt()
+			if now.Sub(*updatedAt) > ttl {
+				if immortal {
+					m.Hide()
+					return true
+				}
 				metrics.Delete(k)
 				c++
 			}
@@ -350,14 +375,4 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	if c > 0 {
 		log.Printf("%v metric(s) expired", c)
 	}
-}
-
-func scheduledCollectMemoryStats() {
-	for range time.Tick(time.Minute) {
-		collectMemoryStats()
-	}
-}
-
-func collectMemoryStats() {
-	runtime.ReadMemStats(&memStats)
 }
