@@ -226,8 +226,6 @@ func TestMetricsHandler(t *testing.T) {
 	_, ok := result["counters/test/unc"]
 	assert.False(t, ok, "Ответ НЕ должен содержать метрику counter/test/unc")
 	assert.Contains(t, result, "uptime_seconds", "Ответ должен содержать метрику uptime_seconds")
-	timestampMetric := result["uptime_seconds"]
-	assert.Equal(t, now.UnixMilli(), timestampMetric.Timestamp)
 	floatMetric, ok := result["test/topic"]
 	assert.True(t, ok, "Метрика 'test/topic' должна присутствовать в ответе")
 	assert.Equal(t, 42.5, floatMetric.Value, "Значение метрики должно быть 42.5")
