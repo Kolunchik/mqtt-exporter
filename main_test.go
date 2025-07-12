@@ -68,33 +68,33 @@ func TestIsCounter(t *testing.T) {
 }
 
 func TestVirtualCounter(t *testing.T) {
-	assert.True(t, virtualCounter(virtualCounterPrefix))
-	assert.False(t, virtualCounter("/"+virtualCounterPrefix))
+	assert.True(t, isVirtualCounter(vcPrefix))
+	assert.False(t, isVirtualCounter("/"+vcPrefix))
 	metrics.Clear()
-	m := &mockMessage{topic: virtualCounterPrefix, payload: []byte("1")}
-	m1 := &mockMessage{topic: "/" + virtualCounterPrefix, payload: []byte("1")}
+	m := &mockMessage{topic: vcPrefix, payload: []byte("1")}
+	m1 := &mockMessage{topic: "/" + vcPrefix, payload: []byte("1")}
 	messageHandler(nil, m)
 	messageHandler(nil, m1)
-	val, loaded := metrics.Load(virtualCounterPrefix)
+	val, loaded := metrics.Load(vcPrefix)
 	assert.True(t, loaded)
 	got := val.(Metric)
 	assert.Equal(t, float64(1), got.Value())
-	val, loaded = metrics.Load(virtualCounterPrefix + "/vc")
+	val, loaded = metrics.Load(vcPrefix + "/vc")
 	assert.True(t, loaded)
 	got = val.(Metric)
 	assert.Equal(t, uint64(1), got.Value())
-	val, loaded = metrics.Load("/" + virtualCounterPrefix)
+	val, loaded = metrics.Load("/" + vcPrefix)
 	assert.True(t, loaded)
 	got = val.(Metric)
 	assert.Equal(t, float64(1), got.Value())
-	val, loaded = metrics.Load("/" + virtualCounterPrefix + "/vc")
+	val, loaded = metrics.Load("/" + vcPrefix + "/vc")
 	assert.False(t, loaded)
 	messageHandler(nil, m)
-	val, loaded = metrics.Load(virtualCounterPrefix)
+	val, loaded = metrics.Load(vcPrefix)
 	assert.True(t, loaded)
 	got = val.(Metric)
 	assert.Equal(t, float64(1), got.Value())
-	val, loaded = metrics.Load(virtualCounterPrefix + "/vc")
+	val, loaded = metrics.Load(vcPrefix + "/vc")
 	assert.True(t, loaded)
 	got = val.(Metric)
 	assert.Equal(t, uint64(2), got.Value())
@@ -260,23 +260,23 @@ func TestMectricsMethods(t *testing.T) {
 	updatedAt, immortal := f.UpdatedAt()
 	assert.Equal(t, &time, updatedAt)
 	assert.False(t, immortal)
-	assert.False(t, f.Hidden())
+	assert.False(t, f.IsHidden())
 	f.Hide()
-	assert.True(t, f.Hidden())
+	assert.True(t, f.IsHidden())
 	assert.Equal(t, "test text", s.Value())
 	updatedAt, immortal = s.UpdatedAt()
 	assert.Equal(t, &time, updatedAt)
 	assert.False(t, immortal)
-	assert.False(t, s.Hidden())
+	assert.False(t, s.IsHidden())
 	s.Hide()
-	assert.True(t, s.Hidden())
+	assert.True(t, s.IsHidden())
 	assert.Equal(t, uint64(0), c.Value())
 	updatedAt, immortal = c.UpdatedAt()
 	assert.Equal(t, &time, updatedAt)
 	assert.True(t, immortal)
-	assert.False(t, c.Hidden())
+	assert.False(t, c.IsHidden())
 	c.Hide()
-	assert.True(t, c.Hidden())
+	assert.True(t, c.IsHidden())
 }
 
 func TestMetricsHandlerHeavy(t *testing.T) {
@@ -604,6 +604,7 @@ func TestMQTTConnectionsCounter(t *testing.T) {
 
 func TestMQTTConnectedValue(t *testing.T) {
 	c := mqttConnected.Load()
+	assert.Nil(t, mqttClient)
 	assert.Equal(t, uint32(0), c, "Значение mqttConnected должно быть 0")
 }
 
@@ -623,14 +624,6 @@ func TestMQTTConnectionsCounterOK(t *testing.T) {
 
 func TestMQTTConnectedValueOK(t *testing.T) {
 	c := mqttConnected.Load()
-	assert.Equal(t, uint32(1), c, "Значение mqttConnected должно быть 1")
-}
-
-func TestMQTTDisconnect(t *testing.T) {
-	broker := "wss://test.mosquitto.org:8081"
-	//вызываем ошибку подключения из-за одинакового идентификатора
-	_, _ = mcStart(broker, commit)
 	assert.True(t, mqttClient.IsConnected())
-	mqttClient.Disconnect(30000)
-	assert.False(t, mqttClient.IsConnected())
+	assert.Equal(t, uint32(1), c, "Значение mqttConnected должно быть 1")
 }

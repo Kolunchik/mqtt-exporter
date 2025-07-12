@@ -10,7 +10,7 @@ zabbix_export:
       description: 'https://github.com/Kolunchik/mqtt-exporter'
       vendor:
         name: 'https://github.com/Kolunchik/mqtt-exporter'
-        version: 0.4.0
+        version: 0.4.1
       groups:
         - name: 'Templates/Network devices'
       items:
@@ -32,6 +32,8 @@ zabbix_export:
           tags:
             - tag: device
               value: mqtt-exporter
+            - tag: type
+              value: version
         - uuid: 72d62928c7c6448ca96c0ed81b400f87
           name: '{$N_MQTT}: Служебные метрики mqtt-exporter'
           type: HTTP_AGENT
@@ -2535,98 +2537,98 @@ zabbix_export:
             - uuid: 7321c197511e4eac9ee98472fc09b3a6
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 1])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 1])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 1])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: a4f3f5ab0f2c4578a9083eb691b90cbd
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 2])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 2])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 2])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I2}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 1144fdbcf1104f11aa5d35f6e7d5045a
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 3])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 3])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 3])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I3}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 2212d902c25844c0aaff6666525c2259
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 4])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 4])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 4])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I4}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 29765e8371204a019083700f5b7074b4
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 5])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 5])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 5])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I5}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d5704852b3cf4746ac372ced25c281ad
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 6])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 6])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 6])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I6}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 506fa083533644588abe9039f8f73b5b
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 7])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 7])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 7])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I7}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d0db4c9bae1c465a9632ae3010a414b0
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 8])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 8])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 8])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I8}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 4f782e6d25424851a14a9d3c1f36fb08
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 9])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 9])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 9])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I9}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 85e34a9abf4240feb06fdac2f248c8e4
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 10])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 10])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 10])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I10}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 20be0e2bc3db4065b122c7ee2380c4f2
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 11])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 11])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 11])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I11}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 939934617b8a46139d187e1443c43cab
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 12])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 12])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 12])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I12}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d247f9f4bc2b49f8a028d79db8f744fa
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 13])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 13])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 13])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I13}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: f83d44da375d49138050186afb728d0c
               expression: |
                 last(/WB by m-e/wb-mcm16[{#DEVICE}/Input 14])=1 or 	
-                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 14])<>0
+                change(/WB by m-e/wb-mcm16[{#DEVICE}/Counter 14])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I14}'
               discover: NO_DISCOVER
               priority: AVERAGE
@@ -2937,19 +2939,19 @@ zabbix_export:
             - uuid: 3b5a4c4f2efb402389248dbbfb2b3998
               expression: |
                 last(/WB by m-e/wb-mr3[{#DEVICE}/Input 1])=1 or 	
-                change(/WB by m-e/wb-mr3[{#DEVICE}/Input 1 counter])<>0
+                change(/WB by m-e/wb-mr3[{#DEVICE}/Input 1 counter])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 6f59dfac496840a3b4484c4090b1b9d8
-              expression: 'last(/WB by m-e/wb-mr3[{#DEVICE}/Input 2])=1 or change(/WB by m-e/wb-mr3[{#DEVICE}/Input 2 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr3[{#DEVICE}/Input 2])=1 or change(/WB by m-e/wb-mr3[{#DEVICE}/Input 2 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I2}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 982d644c505344e19e49c2024892823b
               expression: |
                 last(/WB by m-e/wb-mr3[{#DEVICE}/Input 3])=1 or 	
-                change(/WB by m-e/wb-mr3[{#DEVICE}/Input 3 counter])<>0
+                change(/WB by m-e/wb-mr3[{#DEVICE}/Input 3 counter])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:I3}'
               priority: AVERAGE
               manual_close: 'YES'
@@ -3674,57 +3676,57 @@ zabbix_export:
                   manual_close: 'YES'
           trigger_prototypes:
             - uuid: e619bae41dcd451abd467c9f7de6cf48
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 1])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 1 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 1])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 1 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 4cb2986667f1450ba9e16caff6279608
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 2])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 2 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 2])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 2 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I2}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 067ad2726a7a40d7bbc3e6ab8444ab8e
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 3])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 3 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 3])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 3 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I3}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: e296aa3360d049c695ea8d7c4826d3f7
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 4])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 4 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 4])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 4 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I4}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: c1e18c699ebb4c3686a564d2aac13e72
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 5])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 5 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 5])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 5 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I5}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 8e5237c701804b5680bf3d1ca00fbca5
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 6])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 6 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 6])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 6 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I6}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 9a2fceb09dea432f9be1d916f6d47f9b
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 7])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 7 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 7])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 7 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I7}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 363aeef1f84843738137cee38a89a2fa
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 8])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 8 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 8])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 8 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I8}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 4451e98052a94e1a9983b7c3418f0dc1
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 9])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 9 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 9])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 9 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I9}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 1187e935064c4f7cb92b789c94e1f950
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 10])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 10 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 10])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 10 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I10}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d754696c059b45df8b4d01e26ebc93dc
-              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 11])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 11 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mr11[{#DEVICE}/Input 11])=1 or change(/WB by m-e/wb-mr11[{#DEVICE}/Input 11 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:I11}'
               priority: AVERAGE
               manual_close: 'YES'
@@ -3878,14 +3880,14 @@ zabbix_export:
                       value: nodata
           trigger_prototypes:
             - uuid: 5c5f678c6e2c4248a3492b9160e50457
-              expression: 'last(/WB by m-e/wb-mrgb[{#DEVICE}/Button 1])=1 or change(/WB by m-e/wb-mrgb[{#DEVICE}/Button 1 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mrgb[{#DEVICE}/Button 1])=1 or change(/WB by m-e/wb-mrgb[{#DEVICE}/Button 1 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:B1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d6bf2cea2ce44129a3db6db584b64e2c
               expression: |
                 last(/WB by m-e/wb-mrgb[{#DEVICE}/Button 2])=1 or 	
-                change(/WB by m-e/wb-mrgb[{#DEVICE}/Button 2 counter])<>0
+                change(/WB by m-e/wb-mrgb[{#DEVICE}/Button 2 counter])>{$MIN_CHANGE:"{#MACRO}"}
               name: '{$N_{#MACRO}:B2}'
               priority: AVERAGE
               manual_close: 'YES'
@@ -4061,12 +4063,12 @@ zabbix_export:
                   value: relay
           trigger_prototypes:
             - uuid: d73eff11717c43a0b85419c4f96187cb
-              expression: 'last(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1])=1 or change(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1])=1 or change(/WB by m-e/wb-mrm2[{#DEVICE}/Button 1 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:B1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 1a4e2834a5ee45738d0a6d1300260d0b
-              expression: 'last(/WB by m-e/wb-mrm2[{#DEVICE}/Button 2])=1 or change(/WB by m-e/wb-mrm2[{#DEVICE}/Button 2 counter])<>0'
+              expression: 'last(/WB by m-e/wb-mrm2[{#DEVICE}/Button 2])=1 or change(/WB by m-e/wb-mrm2[{#DEVICE}/Button 2 counter])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:B2}'
               priority: AVERAGE
               manual_close: 'YES'
@@ -5344,72 +5346,72 @@ zabbix_export:
                       value: nodata
           trigger_prototypes:
             - uuid: cfd654b568fc4689a76dd4052dde31b5
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}1])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}1/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}1])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}1/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}1}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: ebd771c09e2a4b0c86f472ea18fa4597
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}2])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}2/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}2])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}2/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}2}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: ed06cb8e0e044b2e832470387742e17f
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}3])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}3/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}3])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}3/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}3}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 1b25b237591943d39a91117f6eb5d67e
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}4])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}4/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}4])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}4/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}4}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: a0537fe058354516976411cf840b5794
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}5])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}5/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}5])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}5/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}5}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: bdafeb219c5c4ddabea821766e16235e
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}6])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}6/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}6])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}6/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}6}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: d2a7fd3a336c49bfab2f1816a7d43fc1
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}7])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}7/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}7])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}7/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}7}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 80f2216866e440598483d495bee87cba
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}8])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}8/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}8])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}8/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}8}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: dcc5ecc464554059828ed1978c9527a8
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}9])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}9/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}9])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}9/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}9}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: fd5c08d53ce341b890a62cbdf895bb1f
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}10])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}10/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}10])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}10/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}10}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 58f38236442242e3a76ed259c42189a8
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}11])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}11/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}11])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}11/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}11}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 2301903425b2488eb0946dfc5c52bb9b
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}12])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}12/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}12])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}12/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}12}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: 61d87bff2f31486687d34b3fa994c484
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}13])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}13/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}13])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}13/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}13}'
               priority: AVERAGE
               manual_close: 'YES'
             - uuid: f15580171a24486b8432baf810c2fe8b
-              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/vc])>0'
+              expression: 'last(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14])=1 or change(/WB by m-e/wbio-di-wd-14[{#DEVICE}_{#PREF}14/vc])>{$MIN_CHANGE:"{#MACRO}"}'
               name: '{$N_{#MACRO}:{#PREF}14}'
               discover: NO_DISCOVER
               priority: AVERAGE
@@ -5454,8 +5456,9 @@ zabbix_export:
         - macro: '{$LOUD_MAX}'
           value: '85'
           description: 'максимальный уровень шума'
-        - macro: '{$MIN_UPTIME}'
-          value: '500'
+        - macro: '{$MIN_CHANGE}'
+          value: '1'
+          description: 'минимальное изменение счётчика для тревоги'
         - macro: '{$M_URL}'
           value: 'http://127.0.0.1:8080/v1'
           description: 'адрес для получения метрик'

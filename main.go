@@ -17,10 +17,10 @@ import (
 )
 
 const (
-	APIVersion           = "v1"
-	counterSuffix        = "/count"
-	counterPrefix        = "counters/"
-	virtualCounterPrefix = "/devices/wb-gpio/controls/EXT"
+	APIVersion    = "v1"
+	counterSuffix = "/count"
+	counterPrefix = "counters/"
+	vcPrefix      = "/devices/wb-gpio/controls/EXT"
 )
 
 type MetricData struct {
@@ -33,7 +33,7 @@ type Metric interface {
 	Value() any
 	UpdatedAt() (*time.Time, bool)
 	Hide()
-	Hidden() bool
+	IsHidden() bool
 }
 
 type stringMetric struct {
@@ -61,7 +61,7 @@ func (m *stringMetric) Hide() {
 	m.hidden = true
 }
 
-func (m *stringMetric) Hidden() bool {
+func (m *stringMetric) IsHidden() bool {
 	return m.hidden
 }
 
@@ -90,7 +90,7 @@ func (m *floatMetric) Hide() {
 	m.hidden = true
 }
 
-func (m *floatMetric) Hidden() bool {
+func (m *floatMetric) IsHidden() bool {
 	return m.hidden
 }
 
@@ -119,7 +119,7 @@ func (m *counterMetric) Hide() {
 	m.hidden = true
 }
 
-func (m *counterMetric) Hidden() bool {
+func (m *counterMetric) IsHidden() bool {
 	return m.hidden
 }
 
@@ -225,7 +225,7 @@ func messageHandler(_ mqtt.Client, msg mqtt.Message) {
 	if isCounter(topic) {
 		processCounter(topic, payload)
 		return
-	} else if virtualCounter(topic) {
+	} else if isVirtualCounter(topic) {
 		processCounter(topic+"/vc", payload)
 	}
 	processRegularMetric(topic, payload, opts.maxLength)
@@ -235,8 +235,8 @@ func isCounter(topic string) bool {
 	return strings.HasPrefix(topic, counterPrefix) || strings.HasSuffix(topic, counterSuffix)
 }
 
-func virtualCounter(topic string) bool {
-	return strings.HasPrefix(topic, virtualCounterPrefix)
+func isVirtualCounter(topic string) bool {
+	return strings.HasPrefix(topic, vcPrefix)
 }
 
 func processCounter(topic, payload string) {
@@ -284,7 +284,7 @@ func metricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	metrics.Range(func(k, v any) bool {
-		if m, ok := v.(Metric); ok && !m.Hidden() {
+		if m, ok := v.(Metric); ok && !m.IsHidden() {
 			result[k.(string)] = m.GetMetric()
 		}
 		return true
@@ -359,7 +359,7 @@ func cleanupTask(noCleanup bool, ttl time.Duration) {
 	now := time.Now()
 	c := 0
 	metrics.Range(func(k, v any) bool {
-		if m, ok := v.(Metric); ok && !m.Hidden() {
+		if m, ok := v.(Metric); ok && !m.IsHidden() {
 			updatedAt, immortal := m.UpdatedAt()
 			if now.Sub(*updatedAt) > ttl {
 				if immortal {
