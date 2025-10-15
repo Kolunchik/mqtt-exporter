@@ -1,5 +1,5 @@
 zabbix_export:
-  version: '7.2'
+  version: '7.4'
   template_groups:
     - uuid: 36bff6c29af64692839d077febfc7079
       name: 'Templates/Network devices'
@@ -140,7 +140,7 @@ zabbix_export:
             - tag: type
               value: time
         - uuid: 03779a72f67742ecb41771e15c52e842
-          name: '{$N_MQTT}: Метрики mqtt'
+          name: '{$N_MQTT}: Данные из mqtt'
           type: HTTP_AGENT
           key: 'mqtt[metrics]'
           history: 1d
@@ -5440,7 +5440,7 @@ zabbix_export:
         - macro: '{$CHECK_NODATA:"EXT1"}'
           value: 2h
         - macro: '{$CHECK_NODATA:"WB_MCM16_1"}'
-          value: 2h
+          value: 3h
         - macro: '{$CO2_MAX}'
           value: '1000'
           description: 'максимальный уровень CO2'
@@ -5448,10 +5448,10 @@ zabbix_export:
           value: 365d
           description: 'хранение истории по умолчанию'
         - macro: '{$HUMID_MAX}'
-          value: '75'
+          value: '80'
           description: 'максимальная влажность, сработка'
         - macro: '{$HUMID_MAX_OK}'
-          value: '73'
+          value: '75'
           description: 'максимальная влажность, покой'
         - macro: '{$LOUD_MAX}'
           value: '85'
